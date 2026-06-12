@@ -32,8 +32,14 @@ public class MantencionService {
         return mantencionRepository.save(mantencion);
     }
 
-    public void delete(Integer id) {
-        mantencionRepository.deleteById(id);
+    public String eliminar(Integer id) {
+        try {
+            Mantencion mantencion = mantencionRepository.findById(id).orElseThrow(() -> new RuntimeException("Mantencion con Id  " + id + " no existe."));
+            mantencionRepository.delete(mantencion);
+            return "La mantencion con Id '" + mantencion.getIdMantencion() + " ha sido eliminada.";
+        } catch (RuntimeException e) {
+            return e.getMessage();
+        }
     }
 
     public MantencionDTO convertirADTO (Mantencion mantencion) {
