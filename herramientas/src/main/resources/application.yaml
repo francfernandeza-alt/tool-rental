@@ -1,3 +1,21 @@
 spring:
   application:
     name: herramientas
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/bd_multiherramienta_vm
+    username: root
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 8081
+  
