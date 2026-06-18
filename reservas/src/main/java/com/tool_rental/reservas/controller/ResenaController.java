@@ -1,5 +1,117 @@
 package com.tool_rental.reservas.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tool_rental.reservas.dto.ResenaDTO;
+import com.tool_rental.reservas.model.Resena;
+import com.tool_rental.reservas.service.ResenaService;
+
+import jakarta.validation.Valid;
+
+@RestController
+@RequestMapping("/api/v1/resenas")
 public class ResenaController {
 
+    @Autowired
+    private ResenaService resenaService;
+
+    @GetMapping
+    public ResponseEntity<?> listarResenas() {
+        List<ResenaDTO> resenas = resenaService.obtenerTodos();
+
+        if (resenas.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(resenas, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> buscarResena(@PathVariable Integer id) {
+        ResenaDTO resena = resenaService.buscarPorId(id);
+
+        if (resena == null) {
+            return new ResponseEntity<>("Reseña no encontrada", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(resena, HttpStatus.OK);
+    }
+
+    @GetMapping("/usuario/{rutUsuario}")
+    public ResponseEntity<?> buscarResenasPorUsuario(@PathVariable String rutUsuario) {
+        List<ResenaDTO> resenas = resenaService.buscarPorRutUsuario(rutUsuario);
+
+        if (resenas.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(resenas, HttpStatus.OK);
+    }
+
+    @GetMapping("/herramienta/{herramientaId}")
+    public ResponseEntity<?> buscarResenasPorHerramienta(@PathVariable Integer herramientaId) {
+        List<ResenaDTO> resenas = resenaService.buscarPorHerramientaId(herramientaId);
+
+        if (resenas.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(resenas, HttpStatus.OK);
+    }
+
+    @GetMapping("/reserva/{reservaId}")
+    public ResponseEntity<?> buscarResenasPorReserva(@PathVariable Integer reservaId) {
+        List<ResenaDTO> resenas = resenaService.buscarPorReservaId(reservaId);
+
+        if (resenas.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        return new ResponseEntity<>(resenas, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> guardarResena(@Valid @RequestBody Resena resena) {
+        ResenaDTO nuevaResena = resenaService.guardar(resena);
+
+        if (nuevaResena == null) {
+            return new ResponseEntity<>("No se pudo crear la reseña. Verifique puntuación, reserva y herramienta.", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
+        ResenaDTO resenaActualizada = resenaService.actualizar(id, resena);
+
+        if (resenaActualizada == null) {
+            return new ResponseEntity<>("No se pudo actualizar la reseña. Verifique datos ingresados.", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(resenaActualizada, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarResena(@PathVariable Integer id) {
+        boolean eliminado = resenaService.eliminar(id);
+
+        if (!eliminado) {
+            return new ResponseEntity<>("Reseña no encontrada", HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>("Reseña eliminada correctamente", HttpStatus.OK);
+    }
 }
