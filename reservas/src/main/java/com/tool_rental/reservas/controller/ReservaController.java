@@ -18,15 +18,19 @@ import com.tool_rental.reservas.dto.ReservaDTO;
 import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.service.ReservaService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/reservas")
+@Tag(name = "Reservas", description = "Endpoints para gestionar reservas de herramientas")
 public class ReservaController {
 
     @Autowired
     private ReservaService reservaService;
 
+    @Operation(summary = "Listar reservas", description = "Obtiene todas las reservas registradas en el sistema")
     @GetMapping
     public ResponseEntity<?> listarReservas() {
         List<ReservaDTO> reservas = reservaService.obtenerTodos();
@@ -38,6 +42,7 @@ public class ReservaController {
         return new ResponseEntity<>(reservas, HttpStatus.OK);
     }
 
+    @Operation(summary = "Buscar reserva por ID", description = "Obtiene una reserva específica mediante su identificador")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarReserva(@PathVariable Integer id) {
         ReservaDTO reserva = reservaService.buscarPorId(id);
@@ -49,6 +54,7 @@ public class ReservaController {
         return new ResponseEntity<>(reserva, HttpStatus.OK);
     }
 
+    @Operation(summary = "Buscar reservas por usuario", description = "Obtiene todas las reservas asociadas a un RUT de usuario")
     @GetMapping("/usuario/{rutUsuario}")
     public ResponseEntity<?> buscarReservasPorUsuario(@PathVariable String rutUsuario) {
         List<ReservaDTO> reservas = reservaService.buscarPorRutUsuario(rutUsuario);
@@ -60,6 +66,7 @@ public class ReservaController {
         return new ResponseEntity<>(reservas, HttpStatus.OK);
     }
 
+    @Operation(summary = "Crear reserva", description = "Registra una nueva reserva validando fechas, tipo de reserva y método de pago")
     @PostMapping
     public ResponseEntity<?> guardarReserva(@Valid @RequestBody Reserva reserva) {
         ReservaDTO nuevaReserva = reservaService.guardar(reserva);
@@ -71,6 +78,7 @@ public class ReservaController {
         return new ResponseEntity<>(nuevaReserva, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Actualizar reserva", description = "Actualiza los datos de una reserva existente")
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarReserva(@PathVariable Integer id, @RequestBody Reserva reserva) {
         ReservaDTO reservaActualizada = reservaService.actualizar(id, reserva);
@@ -82,6 +90,7 @@ public class ReservaController {
         return new ResponseEntity<>(reservaActualizada, HttpStatus.OK);
     }
 
+    @Operation(summary = "Eliminar reserva", description = "Elimina una reserva existente mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarReserva(@PathVariable Integer id) {
         boolean eliminado = reservaService.eliminar(id);

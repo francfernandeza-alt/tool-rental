@@ -17,15 +17,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tool_rental.reservas.model.TipoReserva;
 import com.tool_rental.reservas.service.TipoReservaService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tipos-reserva")
+@Tag(name = "Tipos de reserva", description = "Endpoints para administrar tipos de reserva")
 public class TipoReservaController {
 
     @Autowired
     private TipoReservaService tipoReservaService;
 
+    @Operation(summary = "Listar tipos de reserva")
     @GetMapping
     public ResponseEntity<?> listarTiposReserva() {
         List<TipoReserva> tiposReserva = tipoReservaService.obtenerTodos();
@@ -37,6 +41,7 @@ public class TipoReservaController {
         return new ResponseEntity<>(tiposReserva, HttpStatus.OK);
     }
 
+    @Operation(summary = "Buscar tipo de reserva por ID")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarTipoReserva(@PathVariable Integer id) {
         TipoReserva tipoReserva = tipoReservaService.buscarPorId(id);
@@ -48,12 +53,14 @@ public class TipoReservaController {
         return new ResponseEntity<>(tipoReserva, HttpStatus.OK);
     }
 
+    @Operation(summary = "Crear tipo de reserva")
     @PostMapping
     public ResponseEntity<?> guardarTipoReserva(@Valid @RequestBody TipoReserva tipoReserva) {
         TipoReserva nuevoTipoReserva = tipoReservaService.guardar(tipoReserva);
         return new ResponseEntity<>(nuevoTipoReserva, HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Actualizar tipo de reserva")
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarTipoReserva(@PathVariable Integer id, @Valid @RequestBody TipoReserva tipoReserva) {
         TipoReserva tipoReservaActualizado = tipoReservaService.actualizar(id, tipoReserva);
@@ -65,6 +72,7 @@ public class TipoReservaController {
         return new ResponseEntity<>(tipoReservaActualizado, HttpStatus.OK);
     }
 
+    @Operation(summary = "Eliminar tipo de reserva")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarTipoReserva(@PathVariable Integer id) {
         boolean eliminado = tipoReservaService.eliminar(id);
