@@ -2,6 +2,8 @@ C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrent
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Controller\DireccionController.java
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Controller\RegionController.java
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Controller\UsuarioController.java
+C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Dto\ComunaDTO.java
+C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Dto\RegionDTO.java
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Model\Comuna.java
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Model\Direccion.java
 C:\Users\nicol\toolrental\tool-rental\usuario-service\src\main\java\com\toolrental\usuario\Model\Region.java
