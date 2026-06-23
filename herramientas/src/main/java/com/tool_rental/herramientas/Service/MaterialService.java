@@ -21,14 +21,9 @@ public class MaterialService {
 
     public List<MaterialDTO> obtenerTodos() {
         log.info("Obteniendo todos los materiales");
-        try{
-            List<MaterialDTO> lista = materialRepository.findAll().stream().map(this::convertirADTO).toList();
-            log.info("Consulta exitosa: se recuperaron {} materiales registrados", lista.size());
-            return lista;
-        } catch (Exception e) {
-            log.error("Error inesperado al listar materiales: {}", e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, por favor intenta más tarde.");
-        }
+        List<MaterialDTO> lista = materialRepository.findAll().stream().map(this::convertirADTO).toList();
+        log.info("Consulta exitosa: se recuperaron {} materiales registrados", lista.size());
+        return lista;
     }
 
     public MaterialDTO buscarPorId(Integer id) {
@@ -47,64 +42,40 @@ public class MaterialService {
 
     public MaterialDTO guardarMaterial(MaterialDTO materialDTO) {
         log.info("Guardando nuevo material");
-        try {
-            Material material = new Material();
-            material.setNombreMaterial(materialDTO.getNombreMaterialDTO());
-            validarMaterial(material);
-            Material guardado = materialRepository.save(material);
-            log.info("Material {} guardado exitosamente con ID {}.", guardado.getNombreMaterial(), guardado.getIdMaterial());
-            return convertirADTO(guardado);
-        } catch (RuntimeException e) {
-            log.error("No se pudo completar el registro por regla de negocio: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Error inesperado: {}", e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, por favor intenta más tarde.");
-        }
+        Material material = new Material();
+        material.setNombreMaterial(materialDTO.getNombreMaterialDTO());
+        validarMaterial(material);
+        Material guardado = materialRepository.save(material);
+        log.info("Material {} guardado exitosamente con ID {}.", guardado.getNombreMaterial(), guardado.getIdMaterial());
+        return convertirADTO(guardado);
     }
 
     public MaterialDTO actualizarMaterial(Integer id, MaterialDTO materialDTO) {
         log.info("Actualizando material con ID {}", id);
-            Material material = materialRepository.findById(id).orElseThrow(() -> {
-            log.error("Material con ID {} no existe", id);
+        Material material = materialRepository.findById(id).orElseThrow(() -> {
+            log.error("Fallo de actualización: No se encontró el material con ID {}", id);
             return new RuntimeException("Material no existe");
-            });
-        try{
-            if (materialDTO.getNombreMaterialDTO() != null) {
-                material.setNombreMaterial(materialDTO.getNombreMaterialDTO());
-            }
-            if (materialDTO.getDescripcionMaterialDTO() != null) {
-                material.setDescripcionMaterial(materialDTO.getDescripcionMaterialDTO());
-            }
-            Material actualizado = materialRepository.save(material);
-            log.info("Material con ID {} actualizado exitosamente.", id);
-            return convertirADTO(actualizado);
-        } catch (RuntimeException e) {
-            log.error("Error al actualizar material: {}", e.getMessage());
-            throw e;
-        } catch (Exception e){
-            log.error("Error inesperado al actualizar material ID {}: {}", id, e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, por favor intenta más tarde.");
+        });
+        if (materialDTO.getNombreMaterialDTO() != null) {
+            material.setNombreMaterial(materialDTO.getNombreMaterialDTO());
         }
+        if (materialDTO.getDescripcionMaterialDTO() != null) {
+            material.setDescripcionMaterial(materialDTO.getDescripcionMaterialDTO());
+        }
+        Material actualizado = materialRepository.save(material);
+        log.info("Material con ID {} actualizado exitosamente.", id);
+        return convertirADTO(actualizado);
     }
 
     public String eliminar(Integer id) {
         log.info("Eliminando material con ID {}", id);
-        try {
-            Material material = materialRepository.findById(id).orElseThrow(() -> {
-                    log.error("Material con ID {} no existe", id);
-                    return new RuntimeException("Material con Id " + id + " no existe.");
-            });
-            materialRepository.delete(material);
-            log.info("Material '{}' eliminado correctamente", material.getNombreMaterial());
-            return "Material eliminado correctamente";
-        } catch (RuntimeException e) {
-            log.error("Error al eliminar material con ID {}: {}", id, e.getMessage());
-            return e.getMessage();
-        } catch (Exception e) {
-            log.error("Error inesperado al eliminar ID {}: {}", id, e.getMessage());
-            return "Hubo un problema al conectar con el sistema, por favor intenta más tarde.";
-        }
+        Material material = materialRepository.findById(id).orElseThrow(() -> {
+                log.error("Material con ID {} no existe", id);
+                return new RuntimeException("Material con Id " + id + " no existe.");
+        });
+        materialRepository.delete(material);
+        log.info("Material '{}' eliminado correctamente", material.getNombreMaterial());
+        return "Material eliminado correctamente";
     }
 
     private void validarMaterial(Material material) {

@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.tool_rental.herramientas.DTO.HerramientaDTO;
+import com.tool_rental.herramientas.DTO.MantencionDTO;
+import com.tool_rental.herramientas.DTO.ResenaDTO;
 import com.tool_rental.herramientas.Model.Herramienta;
 import com.tool_rental.herramientas.Repository.HerramientaRepository;
 
@@ -20,45 +23,48 @@ public class HerramientaService {
     @Autowired
     public HerramientaRepository herramientaRepository;
 
+    @Autowired
+    private WebClient.Builder webClientBuilder;
+
     public List<HerramientaDTO> obtenerTodos() {
         log.info("Obteniendo todas las herramientas");
-        try {
-            return herramientaRepository.findAll().stream().map(this::convertirADTO).toList();
-        } catch (Exception e) {
-        log.error("Error al obtener todas las herramientas: {}", e.getMessage());
-        throw e;
-        }
+        List<HerramientaDTO> lista = herramientaRepository.findAll().stream().map(this::convertirADTO).toList();
+        log.info("Se registran {} herramientas.", lista.size());
+        return lista;
     }
 
     public HerramientaDTO buscarPorId(Integer id) {
         log.info("Buscando herramienta con ID {}", id);
-        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(()-> {
-            log.error("Herramienta con ID {} no encontrada", id);
-            return new RuntimeException("Herramienta no encontrada");
-        });
-        return convertirADTO(herramienta);
+        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(()->
+            new RuntimeException("No se encontró la herramienta con el ID ingresado"));
+        List<ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + id)
+            .retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
+        HerramientaDTO herramientaDTO = convertirADTO(herramienta);
+        if (resenas != null && !resenas.isEmpty()) {
+            herramientaDTO.setTotalResenas(resenas.size());
+            double promedio = resenas.stream().mapToInt(ResenaDTO::getPuntuacion).average().orElse(0.0);
+            herramientaDTO.setPromedioEvaluación(promedio);
+            herramientaDTO.setResenas(resenas);
+            log.info("Reseñas encontradas: {} promedio de evaluaciones: {}.", resenas.size(), promedio);
+        } else {
+            herramientaDTO.setTotalResenas(0);
+            herramientaDTO.setPromedioEvaluación(0.0);
+            log.info("La herramienta no posee reseñas registradas en el sistema externo.");
+        }
+        return herramientaDTO;
     }
 
     public String eliminar(Integer id) {
     log.info("Intentando eliminar herramienta con ID {}", id);
-    try {
-        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(() -> {
-            log.error("Herramienta con ID {} no existe", id);
-            return new RuntimeException("Herramienta con Id " + id + " no existe.");
-        });
+        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(() ->
+            new RuntimeException("Herramienta con Id " + id + " no existe."));
         herramientaRepository.delete(herramienta);
         log.info("Herramienta con ID {} eliminada correctamente", id);
         return "La herramienta con Id '" + herramienta.getIdHerramienta() + "' ha sido eliminada.";
-    } catch (RuntimeException e) {
-        log.error("Error al eliminar herramienta con ID {}: {}", id, e.getMessage());
-        return e.getMessage();
-        }
     }
-
 
     public HerramientaDTO guardarHerramienta(HerramientaDTO dto) {
     log.info("Guardando herramienta: {}", dto.getNombreHerramientaDTO());
-    try {
         Herramienta herramienta = new Herramienta();
         herramienta.setNombreHerramienta(dto.getNombreHerramientaDTO());
         herramienta.setEstadoHerramienta(dto.getEstadoHerramientaDTO());
@@ -69,10 +75,6 @@ public class HerramientaService {
         Herramienta guardada = herramientaRepository.save(herramienta);
         log.info("Herramienta guardada con ID {}", guardada.getIdHerramienta());
         return convertirADTO(guardada);
-    } catch (Exception e) {
-        log.error("Error al guardar herramienta {}: ", e.getMessage());
-        throw new RuntimeException("Hubo un problema al conectar con el sistema, intente más tarde");
-        }
     }
 
     public HerramientaDTO actualizarHerramienta(Integer id, HerramientaDTO herramientaDTO){
@@ -81,30 +83,40 @@ public class HerramientaService {
             log.error("Herramienta con ID {} no existe", id);
             return new RuntimeException("Herramienta no existe");
         });
-        try{
-            if(herramientaDTO.getNombreHerramientaDTO() != null){
-                her.setNombreHerramienta(herramientaDTO.getNombreHerramientaDTO());
-            }
-            if(herramientaDTO.getEstadoHerramientaDTO() != null){
-                her.setEstadoHerramienta(herramientaDTO.getEstadoHerramientaDTO());
-            }
-            if(herramientaDTO.getCantidadDisponibleDTO() != null){
-                her.setCantidadDisponible(herramientaDTO.getCantidadDisponibleDTO());
-            }
-            her.setFechaActualizacion(LocalDate.now());
-            validarHerramienta(her);
-            Herramienta actualizada = herramientaRepository.save(her);
-            log.info("Los datos de la herramienta '{}' han sido actualizados correctamente.", actualizada.getNombreHerramienta());
-            return convertirADTO(actualizada);
-        } catch (RuntimeException e) {
-            log.error("Error al actualizar herramienta con ID {}: {}", id, e.getMessage());
-            throw e;
-        }catch (Exception e) {
-            log.error("Error inesperado  al actualizar ID {}: {}", id, e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, intenta más tarde.");
+        if(herramientaDTO.getNombreHerramientaDTO() != null){
+            her.setNombreHerramienta(herramientaDTO.getNombreHerramientaDTO());
         }
+        if(herramientaDTO.getEstadoHerramientaDTO() != null){
+            her.setEstadoHerramienta(herramientaDTO.getEstadoHerramientaDTO());
+        }
+        if(herramientaDTO.getCantidadDisponibleDTO() != null){
+            her.setCantidadDisponible(herramientaDTO.getCantidadDisponibleDTO());
+        }
+        her.setFechaActualizacion(LocalDate.now());
+        validarHerramienta(her);
+        Herramienta actualizada = herramientaRepository.save(her);
+        log.info("Los datos de la herramienta '{}' han sido actualizados correctamente.", actualizada.getNombreHerramienta());
+        return convertirADTO(actualizada);
     }
 
+    public HerramientaDTO detalleResenaDTO (Integer id)
+    {
+        log.info("Consultando herramienta y datos remotos de reseñas para ID: {}", id);
+        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(() ->
+            new RuntimeException("Herramienta no encontrada."));
+        List <ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + id).
+            retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
+        HerramientaDTO herramientaDTO = convertirADTO(herramienta);
+        if (!resenas.isEmpty()) {
+            herramientaDTO.setTotalResenas(resenas.size());
+            double promedio = resenas.stream().mapToInt(ResenaDTO :: getPuntuacion).average().orElse(0.0);
+            herramientaDTO.setPromedioEvaluacion(promedio);
+        } else {
+            herramientaDTO.setTotalResenas(0);
+            herramientaDTO.setPromedioEvaluacion(0.0);
+        }
+        return herramientaDTO;
+    }
 
     public HerramientaDTO convertirADTO (Herramienta herramienta) {
         if (herramienta == null ) {

@@ -1,5 +1,7 @@
 package com.tool_rental.herramientas.DTO;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -9,4 +11,7 @@ public class HerramientaDTO {
     private String estadoHerramientaDTO;
     private Integer cantidadDisponibleDTO;
     private String nombreMarcaDTO;
+    private Double promedioEvaluacion;
+    private Integer totalResenas;
+    private List <ResenaDTO> resenas;
 }

@@ -22,14 +22,9 @@ public class MantencionService {
 
     public List<MantencionDTO> findAll() {
         log.info("Obteniendo todas las mantenciones");
-        try {
-            List<MantencionDTO> lista = mantencionRepository.findAll().stream().map(this::convertirADTO).toList();
-            log.info("Se registran {} registros de mantención", lista.size());
-            return lista;
-        } catch (Exception e) {
-            log.error("Error al obtener mantenciones: {}", e.getMessage());
-            throw e;
-        }
+        List<MantencionDTO> lista = mantencionRepository.findAll().stream().map(this::convertirADTO).toList();
+        log.info("Se registran {} registros de mantención", lista.size());
+        return lista;
     }
 
     public MantencionDTO findById(Integer id) {
@@ -48,23 +43,15 @@ public class MantencionService {
 
     public MantencionDTO save(MantencionDTO mantencionDTO) {
         log.info("Iniciando registro de mantención");
-        try {
-            Mantencion mantencion = new Mantencion();
-            mantencion.setFechaUltimaMantencion(mantencionDTO.getFechaUltimaMantencion());
-            mantencion.setVigenciaMeses(mantencionDTO.getVigenciaMeses());
-            mantencion.setDescripcion(mantencionDTO.getDescripcion());
-            mantencion.setEstado(mantencionDTO.getEstado());
-            validarMantencion(mantencion);
-            Mantencion guardada = mantencionRepository.save(mantencion);
-            log.info("Registro de mantención guardado correctamente con ID: {}", guardada.getIdMantencion());
-            return convertirADTO(guardada);
-        } catch (RuntimeException e) {
-            log.error("Error de validación al intentar guardar: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Error inesperado al intentar guardar regirstro de mantencion: {}", e.getMessage());
-            throw new RuntimeException("Error al procesar el registro de mantención");
-        }
+        Mantencion mantencion = new Mantencion();
+        mantencion.setFechaUltimaMantencion(mantencionDTO.getFechaUltimaMantencion());
+        mantencion.setVigenciaMeses(mantencionDTO.getVigenciaMeses());
+        mantencion.setDescripcion(mantencionDTO.getDescripcion());
+        mantencion.setEstado(mantencionDTO.getEstado());
+        validarMantencion(mantencion);
+        Mantencion guardada = mantencionRepository.save(mantencion);
+        log.info("Registro de mantención guardado correctamente con ID: {}", guardada.getIdMantencion());
+        return convertirADTO(guardada);
     }
 
     public MantencionDTO actualizarMantencion(Integer id, MantencionDTO mantencionDTO) {
@@ -73,49 +60,33 @@ public class MantencionService {
             log.error("No se encontró el registro de mantención con ID {}", id);
             return new RuntimeException("El registro de mantención que intenta modificar no existe.");
         });
-        try {
-            if (mantencionDTO.getFechaUltimaMantencion() != null) {
-                mantencion.setFechaUltimaMantencion(mantencionDTO.getFechaUltimaMantencion());
-            }
-            if (mantencionDTO.getVigenciaMeses() != null) {
-                mantencion.setVigenciaMeses(mantencionDTO.getVigenciaMeses());
-            }
-            if (mantencionDTO.getDescripcion() != null) {
-                mantencion.setDescripcion(mantencionDTO.getDescripcion());
-            }
-            if (mantencionDTO.getEstado() != null) {
-                mantencion.setEstado(mantencionDTO.getEstado());
-            }
-            validarMantencion(mantencion);
-            Mantencion actualizada = mantencionRepository.save(mantencion);
-            log.info("El registro de mantención ha sido actualizado exitosamente.");
-            return convertirADTO(actualizada);
-        } catch (RuntimeException e) {
-            log.error("Error al actualizar: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Error inesperado al modificar mantención: {}", e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, por favor intenta más tarde.");
+        if (mantencionDTO.getFechaUltimaMantencion() != null) {
+            mantencion.setFechaUltimaMantencion(mantencionDTO.getFechaUltimaMantencion());
         }
+        if (mantencionDTO.getVigenciaMeses() != null) {
+            mantencion.setVigenciaMeses(mantencionDTO.getVigenciaMeses());
+        }
+        if (mantencionDTO.getDescripcion() != null) {
+            mantencion.setDescripcion(mantencionDTO.getDescripcion());
+        }
+        if (mantencionDTO.getEstado() != null) {
+            mantencion.setEstado(mantencionDTO.getEstado());
+        }
+        validarMantencion(mantencion);
+        Mantencion actualizada = mantencionRepository.save(mantencion);
+        log.info("El registro de mantención ha sido actualizado exitosamente.");
+        return convertirADTO(actualizada);
     }
 
     public String eliminar(Integer id) {
         log.info("Petición recibida para eliminar mantención con ID {}", id);
-        try {
-            Mantencion mantencion = mantencionRepository.findById(id).orElseThrow(() -> {
-                log.error("Fallo de eliminación: No existe registro con ID {}", id);
-                return new RuntimeException("La mantención que intenta eliminar no existe en el sistema.");
-            });
-            mantencionRepository.delete(mantencion);
-            log.info("Mantención con ID {} eliminada correctamente", id);
-            return "La mantención con Id '" + id + "' ha sido eliminada exitosamente.";
-        } catch (RuntimeException e) {
-            log.info("No se pudo completar la eliminación: {}", e.getMessage());
-            return e.getMessage();
-        } catch (Exception e) {
-            log.error("Error inesperado al eliminar ID {}: {}", id, e.getMessage());
-            return "Hubo un problema al conectar con el sistema, por favor intenta más tarde.";
-        }
+        Mantencion mantencion = mantencionRepository.findById(id).orElseThrow(() -> {
+            log.error("Fallo de eliminación: No existe registro con ID {}", id);
+            return new RuntimeException("La mantención que intenta eliminar no existe en el sistema.");
+        });
+        mantencionRepository.delete(mantencion);
+        log.info("Mantención con ID {} eliminada correctamente", id);
+        return "La mantención con Id '" + id + "' ha sido eliminada exitosamente.";
     }
 
     public MantencionDTO convertirADTO (Mantencion mantencion) {

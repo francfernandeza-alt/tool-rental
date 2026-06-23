@@ -21,14 +21,9 @@ public class MarcaService {
 
     public List<MarcaDTO> obtenerTodos() {
         log.info("Iniciando consulta de marcas registradas");
-        try {
-            List<MarcaDTO> lista = marcaRepository.findAll().stream().map(this::convertirADTO).toList();
-            log.info("Se obtuvieron {} marcas exitosamente", lista.size());
-            return lista;
-        } catch (Exception e) {
-            log.error("Error al intentar listar las marcas: {}", e.getMessage());
-            throw new RuntimeException("No se pudo obtener el listado de marcas.");
-        }
+        List<MarcaDTO> lista = marcaRepository.findAll().stream().map(this::convertirADTO).toList();
+        log.info("Se obtuvieron {} marcas exitosamente", lista.size());
+        return lista;
     }
 
     public MarcaDTO buscarporId(Integer id) {
@@ -38,47 +33,32 @@ public class MarcaService {
             throw new RuntimeException("El ID de búsqueda no puede ser nulo");
         }
         Marca marca = marcaRepository.findById(id).orElseThrow(() -> {
-                log.error("Marca con ID {} no encontrada", id);
-                return new RuntimeException("Marca no encontrada");
-            });
+            log.error("Marca con ID {} no encontrada", id);
+            return new RuntimeException("Marca no encontrada");
+        });
+        log.info("Registro de marca ID {} recuperado exitosamente.", id);
         return convertirADTO(marca);
     }
 
     public String eliminar(Integer id) {
         log.info("Eliminando marca con ID {}", id);
-        try {
-            Marca marca = marcaRepository.findById(id).orElseThrow(() -> {
-                    log.error("Marca con ID {} no existe", id);
-                    return new RuntimeException("Marca con Id " + id + " no existe.");
-            });
-            marcaRepository.delete(marca);
-            log.info("Marca '{}' eliminada correctamente", marca.getNombreMarca());
-            return "Marca '" + marca.getNombreMarca() + "' ha sido eliminada.";
-        } catch (RuntimeException e) {
-            log.info("No se pudo completar la eliminación: {}", e.getMessage());
-            return e.getMessage();
-        } catch (Exception e) {
-            log.error("Error  inesperado al eliminar ID {}: {}", id, e.getMessage());
-            return "Hubo un problema al conectar con el sistema, por favor intenta más tarde.";
-        }
+        Marca marca = marcaRepository.findById(id).orElseThrow(() -> {
+            log.error("Marca con ID {} no existe", id);
+            return new RuntimeException("Marca con Id " + id + " no existe.");
+        });
+        marcaRepository.delete(marca);
+        log.info("Marca '{}' eliminada correctamente", marca.getNombreMarca());
+        return "Marca '" + marca.getNombreMarca() + "' ha sido eliminada.";
     }
 
     public MarcaDTO guardarMarca (MarcaDTO marcaDTO) {
         log.info("Guardando nueva marca");
-        try {
-            Marca marca = new Marca();
-            marca.setNombreMarca(marcaDTO.getNombreMarcaDTO());
-            validarMarca(marca);
-            Marca guardada = marcaRepository.save(marca);
-            log.info("Marca guardada exitosamente con ID {}", guardada.getIdMarca());
-            return convertirADTO(guardada);
-        } catch (RuntimeException e) {
-            log.error("No se pudo guardar la marca: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Error inesperado {}", e.getMessage());
-            throw new RuntimeException("Hubo un problema al conectar con el sistema, por favor intenta más tarde.");
-        }
+        Marca marca = new Marca();
+        marca.setNombreMarca(marcaDTO.getNombreMarcaDTO());
+        validarMarca(marca);
+        Marca guardada = marcaRepository.save(marca);
+        log.info("Marca guardada exitosamente con ID {}", guardada.getIdMarca());
+        return convertirADTO(guardada);
     }
 
     public MarcaDTO actualizarMarca(Integer id, MarcaDTO marcaDTO){
@@ -92,7 +72,6 @@ public class MarcaService {
         Marca actualizada = marcaRepository.save(marca);
         log.info("Marca con ID {} actualizada correctamente", id);
         return convertirADTO(actualizada);
-        
     }
 
     public void validarMarca(Marca marca) {
