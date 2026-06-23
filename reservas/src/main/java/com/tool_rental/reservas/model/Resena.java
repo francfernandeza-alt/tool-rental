@@ -39,7 +39,6 @@ public class Resena {
     @Column(nullable = false, length = 255)
     private String comentario;
 
-    @NotNull(message = "La fecha de la reseña es obligatoria")
     @Column(nullable = false)
     private LocalDate fechaResena;
 
