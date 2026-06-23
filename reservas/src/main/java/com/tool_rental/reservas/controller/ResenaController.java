@@ -38,7 +38,6 @@ public class ResenaController {
         if (resenas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
@@ -46,11 +45,6 @@ public class ResenaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarResena(@PathVariable Integer id) {
         ResenaDTO resena = resenaService.buscarPorId(id);
-
-        if (resena == null) {
-            return new ResponseEntity<>("Reseña no encontrada", HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(resena, HttpStatus.OK);
     }
 
@@ -62,7 +56,6 @@ public class ResenaController {
         if (resenas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
@@ -74,7 +67,6 @@ public class ResenaController {
         if (resenas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
@@ -86,7 +78,6 @@ public class ResenaController {
         if (resenas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
@@ -94,11 +85,6 @@ public class ResenaController {
     @PostMapping
     public ResponseEntity<?> guardarResena(@Valid @RequestBody Resena resena) {
         ResenaDTO nuevaResena = resenaService.guardar(resena);
-
-        if (nuevaResena == null) {
-            return new ResponseEntity<>("No se pudo crear la reseña. Verifique puntuación, reserva y herramienta.", HttpStatus.BAD_REQUEST);
-        }
-
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 
@@ -106,23 +92,13 @@ public class ResenaController {
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
         ResenaDTO resenaActualizada = resenaService.actualizar(id, resena);
-
-        if (resenaActualizada == null) {
-            return new ResponseEntity<>("No se pudo actualizar la reseña. Verifique datos ingresados.", HttpStatus.BAD_REQUEST);
-        }
-
         return new ResponseEntity<>(resenaActualizada, HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar reseña", description = "Elimina una reseña mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarResena(@PathVariable Integer id) {
-        boolean eliminado = resenaService.eliminar(id);
-
-        if (!eliminado) {
-            return new ResponseEntity<>("Reseña no encontrada", HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>("Reseña eliminada correctamente", HttpStatus.OK);
+        String mensaje = resenaService.eliminar(id);
+        return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
