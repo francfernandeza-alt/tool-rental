@@ -17,7 +17,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 server:
-  port: 8081
+  port: 8083
   
 springdoc:
   api-docs:
@@ -28,7 +28,7 @@ springdoc:
 
 eureka:
   client:
-    register-with-eureka: true   # Se registra en el servidor Eureka
-    fetch-registry: true         # Obtiene información de otros servicios
+    register-with-eureka: true
+    fetch-registry: true
     service-url:
       defaultZone: http://localhost:8761/eureka/
