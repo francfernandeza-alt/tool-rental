@@ -18,71 +18,98 @@ import com.tool_rental.herramientas.DTO.HerramientaDTO;
 import com.tool_rental.herramientas.Model.Herramienta;
 import com.tool_rental.herramientas.Service.HerramientaService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("api/v1/herramientas")
+@Slf4j
+@Tag(name = "Herramientas", description = "Endpoints para la gestión del inventario y stock de herramientas.")
 public class HerramientaController {
     @Autowired
     private HerramientaService herramientaService;
     
     @GetMapping
+    @Operation(summary = "Obtener todas las herramientas", description = ("Retorna una lista de todas las herramientas en formato DTO"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Listado de herramientas obtenido con éxito"),
+        @ApiResponse(responseCode = "204", description = "La consulta fue exitosa pero no hay herramientas registradas")
+    })
     public ResponseEntity<List<HerramientaDTO>> todosLasHerramientas() {
+        log.info("Consultando el listado completo de herramientas.");
         List<HerramientaDTO> herramienta = herramientaService.obtenerTodos();
         if (herramienta.isEmpty()) {
+            log.info("Consulta completada, no existen registros para mostrar.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+        log.info("Se listaron {} herramientas.", herramienta.size());
         return new ResponseEntity<>(herramienta, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Obtener un Herramienta", description = ("Busca y retorna una herramienta en formato DTO según un ID dado.") )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Herramienta encontrada"),
+        @ApiResponse(responseCode = "404", description = "La herramienta no existe")
+    })
     public ResponseEntity<HerramientaDTO> buscarPorId(@PathVariable Integer id) {
-        try {
-            HerramientaDTO her = herramientaService.buscarPorId(id);
-            return new ResponseEntity<>(her, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+        log.info("Buscando Herramienta con el código: {}", id);
+        HerramientaDTO her = herramientaService.buscarPorId(id);
+        return new ResponseEntity<>(her, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Herramienta> agregarherramienta(@Valid @RequestBody Herramienta herramienta) {
-        try {
-            Herramienta guardada = herramientaService.guardarHerramienta(herramienta);
-            return new ResponseEntity<>(guardada, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @Operation(summary = "Agregar una nueva herramienta", description = "Guarda una nueva herramienta en el inventario.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "La herramienta fue registrada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Los datos enviados son inválidos o están incompletos")
+    })
+    public ResponseEntity<HerramientaDTO> agregarherramienta(@Valid @RequestBody HerramientaDTO herramientaDTO) {
+        log.info("Registrando la herramienta {}", herramientaDTO.getNombreHerramientaDTO());
+        HerramientaDTO guardada = herramientaService.guardarHerramienta(herramientaDTO);
+        return new ResponseEntity<>(guardada, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Herramienta> editarHerramienta(@PathVariable Integer id, @Valid @RequestBody Herramienta herramienta) {
-        try {
-            Herramienta editada = herramientaService.guardarHerramienta(herramienta);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @Operation(summary = "Actualizar herramienta", description = "Modifica los datos de una herramienta existente según su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "La herramienta fue editada correctamente"),
+        @ApiResponse(responseCode = "400", description = "Los datos de edición son inválidos"),
+        @ApiResponse(responseCode = "404", description = "No se encontró la herramienta para editar")
+    })
+    public ResponseEntity<HerramientaDTO> editarHerramienta(@PathVariable Integer id, @Valid @RequestBody HerramientaDTO herramientaDTO) {
+        log.info("Editando herramienta con código: {}", id);
+        HerramientaDTO editada = herramientaService.actualizarHerramienta(id, herramientaDTO);
+        return new ResponseEntity<>(editada, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Herramienta> actualizarHerramienta(@PathVariable Integer id, @Valid @RequestBody Herramienta herramienta){
-        try{
-            Herramienta newTool = herramientaService.actualizarHerramienta(id, herramienta);
-            return new ResponseEntity<>(newTool, HttpStatus.OK);
-        }catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    @Operation(summary = "Actualización total de una herramienta", description = "Reemplaza todos los datos de una herramienta existente en el inventario.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "La herramienta fue actualizada exitosamente"),
+        @ApiResponse(responseCode = "400", description = "Los datos de entrada no cumplen con las validaciones"),
+        @ApiResponse(responseCode = "404", description = "No se encontró la herramienta con el ID proporcionado")
+    })
+    public ResponseEntity<HerramientaDTO> actualizarHerramienta(@PathVariable Integer id, @Valid @RequestBody HerramientaDTO herramientaDTO){
+        log.info("Actualizando la herramienta con código: {}", id);
+        HerramientaDTO actualizada = herramientaService.actualizarHerramienta(id, herramientaDTO);
+        return new ResponseEntity<>(actualizada, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar herramienta", description = "Elimina una herramienta del sistema usando su ID.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "La herramienta fue eliminada correctamente"),
+        @ApiResponse(responseCode = "404", description = "El código ingresado no corresponde a ninguna herramienta")
+    })
     public ResponseEntity<String> eliminarHerramienta(@PathVariable Integer id) {
+        log.info("Eliminando herramienta con código: {}", id);
         String resultado = herramientaService.eliminar(id);
-        if (resultado.contains("eliminada")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(resultado, HttpStatus.OK);
     }
 }

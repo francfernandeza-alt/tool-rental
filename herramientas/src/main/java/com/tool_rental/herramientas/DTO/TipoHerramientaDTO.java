@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class TipoHerramientaDTO {
     private Integer idTipoHerramientaDTO;
-    private String nombreTipoHerramienta;
-    private String descripcionTipoHerramienta;
+    private String nombreTipoHerramientaDTO;
+    private String descripcionTipoHerramientaDTO;
 }

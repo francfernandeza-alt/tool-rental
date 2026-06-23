@@ -56,78 +56,72 @@ public class HerramientaService {
     }
 
 
-    public Herramienta guardarHerramienta(Herramienta herramienta) {
-    log.info("Guardando herramienta: {}", herramienta.getNombreHerramienta());
+    public HerramientaDTO guardarHerramienta(HerramientaDTO dto) {
+    log.info("Guardando herramienta: {}", dto.getNombreHerramientaDTO());
     try {
+        Herramienta herramienta = new Herramienta();
+        herramienta.setNombreHerramienta(dto.getNombreHerramientaDTO());
+        herramienta.setEstadoHerramienta(dto.getEstadoHerramientaDTO());
+        herramienta.setCantidadDisponible(dto.getCantidadDisponibleDTO());
+        herramienta.setCantidadTotal(dto.getCantidadDisponibleDTO());
+        herramienta.setFechaActualizacion(LocalDate.now());
         validarHerramienta(herramienta);
         Herramienta guardada = herramientaRepository.save(herramienta);
         log.info("Herramienta guardada con ID {}", guardada.getIdHerramienta());
-        return guardada;
-    } catch (RuntimeException e) {
-        log.error("Error al guardar herramienta {}: {}", herramienta.getNombreHerramienta(), e.getMessage());
-        throw e;
+        return convertirADTO(guardada);
+    } catch (Exception e) {
+        log.error("Error al guardar herramienta {}: ", e.getMessage());
+        throw new RuntimeException("Hubo un problema al conectar con el sistema, intente más tarde");
         }
     }
 
-    public Herramienta actualizarHerramienta(Integer id, Herramienta herramienta){
+    public HerramientaDTO actualizarHerramienta(Integer id, HerramientaDTO herramientaDTO){
         log.info("Iniciando actualización de herramienta con ID {}", id);
-        Herramienta her = herramientaRepository.findById(id)
-            .orElseThrow(() -> {
-                log.error("Herramienta con ID {} no existe", id);
-                return new RuntimeException("Herramienta no existe");
-            });
-        if(herramienta.getNombreHerramienta() != null){
-            her.setNombreHerramienta(herramienta.getNombreHerramienta());
-            log.debug("Nombre actualizado a {}", herramienta.getNombreHerramienta());
-        }
-        if(herramienta.getDescripcionHerramienta() != null){
-            her.setDescripcionHerramienta(herramienta.getDescripcionHerramienta());
-            log.debug("Descripción actualizada");
-        }
-        if(herramienta.getEstadoHerramienta() != null){
-            her.setEstadoHerramienta(herramienta.getEstadoHerramienta());
-            log.debug("Estado actualizado a {}", herramienta.getEstadoHerramienta());
-        }
-        if(herramienta.getCantidadTotal() != null){
-            her.setCantidadTotal(herramienta.getCantidadTotal());
-            log.debug("Cantidad total actualizada a {}", herramienta.getCantidadTotal());
-        }
-        if(herramienta.getCantidadDisponible() != null){
-            her.setCantidadDisponible(herramienta.getCantidadDisponible());
-            log.debug("Cantidad disponible actualizada a {}", herramienta.getCantidadDisponible());
-        }
-        if(herramienta.getFechaActualizacion() != null){
-            her.setFechaActualizacion(herramienta.getFechaActualizacion());
-            log.debug("Fecha de actualización cambiada a {}", herramienta.getFechaActualizacion());
-        }
-        if(herramienta.getMarca() != null){
-            her.setMarca(herramienta.getMarca());
-            log.debug("Marca actualizada a {}", herramienta.getMarca().getNombreMarca());
-        }
-        try {
+        Herramienta her = herramientaRepository.findById(id).orElseThrow(() -> {
+            log.error("Herramienta con ID {} no existe", id);
+            return new RuntimeException("Herramienta no existe");
+        });
+        try{
+            if(herramientaDTO.getNombreHerramientaDTO() != null){
+                her.setNombreHerramienta(herramientaDTO.getNombreHerramientaDTO());
+            }
+            if(herramientaDTO.getEstadoHerramientaDTO() != null){
+                her.setEstadoHerramienta(herramientaDTO.getEstadoHerramientaDTO());
+            }
+            if(herramientaDTO.getCantidadDisponibleDTO() != null){
+                her.setCantidadDisponible(herramientaDTO.getCantidadDisponibleDTO());
+            }
+            her.setFechaActualizacion(LocalDate.now());
             validarHerramienta(her);
             Herramienta actualizada = herramientaRepository.save(her);
-            log.info("Herramienta con ID {} actualizada correctamente", id);
-            return actualizada;
+            log.info("Los datos de la herramienta '{}' han sido actualizados correctamente.", actualizada.getNombreHerramienta());
+            return convertirADTO(actualizada);
         } catch (RuntimeException e) {
             log.error("Error al actualizar herramienta con ID {}: {}", id, e.getMessage());
             throw e;
+        }catch (Exception e) {
+            log.error("Error inesperado  al actualizar ID {}: {}", id, e.getMessage());
+            throw new RuntimeException("Hubo un problema al conectar con el sistema, intenta más tarde.");
         }
     }
 
 
     public HerramientaDTO convertirADTO (Herramienta herramienta) {
+        if (herramienta == null ) {
+            return null;
+        }
         HerramientaDTO dto = new HerramientaDTO();
         dto.setIdHerramientaDTO(herramienta.getIdHerramienta());
         dto.setNombreHerramientaDTO(herramienta.getNombreHerramienta());
         dto.setEstadoHerramientaDTO(herramienta.getEstadoHerramienta());
-        dto.setCantidadDisponibleDtO(herramienta.getCantidadDisponible());
-        dto.setNombreMarcaDTO(herramienta.getMarca().getNombreMarca());
-
+        dto.setCantidadDisponibleDTO(herramienta.getCantidadDisponible());
+        if (herramienta.getMarca() != null) {
+            dto.setNombreMarcaDTO(herramienta.getMarca().getNombreMarca());
+        }
         return dto;
     }
 
-    private void validarHerramienta(Herramienta herramienta) {
+    public void validarHerramienta(Herramienta herramienta) {
     if (herramienta.getCantidadDisponible() < 0 ||
         herramienta.getCantidadDisponible() > herramienta.getCantidadTotal()) {
             log.error("Validación fallida: stock inválido para herramienta {}. Disponible={}, Total={}",
@@ -152,6 +146,6 @@ public class HerramientaService {
             herramienta.getNombreHerramienta());
             throw new RuntimeException("La fecha de actualización no puede ser futura");
         }
-    log.debug("Validación exitosa para herramienta {}", herramienta.getNombreHerramienta());
+    log.info("Validación exitosa para herramienta {}", herramienta.getNombreHerramienta());
     }
 }
