@@ -3,6 +3,8 @@ package com.tool_rental.herramientas.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tool_rental.herramientas.Assemblers.TipoHerramientaModelAssembler;
 import com.tool_rental.herramientas.DTO.TipoHerramientaDTO;
-import com.tool_rental.herramientas.Model.TipoHerramienta;
 import com.tool_rental.herramientas.Service.TipoHerramientaService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,19 +36,25 @@ public class TipoHerramientaController {
     @Autowired
     private TipoHerramientaService tipoHerramientaService;
 
+    @Autowired
+    private TipoHerramientaModelAssembler assembler;
+
     @GetMapping
     @Operation(summary = "Listar categorías", description = "Retorna el listado completo de tipos de herramienta en formato DTO.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Listado obtenido con éxito"),
         @ApiResponse(responseCode = "204", description = "No hay registros en el sistema")
     })
-    public ResponseEntity<List<TipoHerramientaDTO>> todosLosTiposHerramientas() {
+    public ResponseEntity<CollectionModel<EntityModel<TipoHerramientaDTO>>> todosLosTiposHerramientas() {
+        log.info("Consultando el listado completo de tipos de herramientas.");
         List<TipoHerramientaDTO> tipoHerramienta = tipoHerramientaService.findAll();
-        log.info("Listando todos los tipos de herramienta."); 
+        log.info("Listando todos los tipos de herramienta.");
         if (tipoHerramienta.isEmpty()) {
+            log.info("Consulta completada, no existen registros para mostrar.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(tipoHerramienta, HttpStatus.OK);
+        log.info("Se listaron {} tipos de herramienta.", tipoHerramienta.size());
+        return new ResponseEntity<>(assembler.toCollectionModel(tipoHerramienta), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -55,11 +63,10 @@ public class TipoHerramientaController {
         @ApiResponse(responseCode = "200", description = "Tipo de herramienta encontrada exitosamente"),
         @ApiResponse(responseCode = "404", description = "El ID proporcionado no existe")
     })
-    public ResponseEntity<TipoHerramientaDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<TipoHerramientaDTO>> buscarPorId(@PathVariable Integer id) {
         log.info("Obteniendo tipo de herramienta con ID: {}", id);
         TipoHerramientaDTO tipoHerramientaDTO = tipoHerramientaService.findById(id);
-        return new ResponseEntity<>(tipoHerramientaDTO, HttpStatus.OK);
-        
+        return new ResponseEntity<>(assembler.toModel(tipoHerramientaDTO), HttpStatus.OK);
     }
 
     @PostMapping
@@ -68,10 +75,10 @@ public class TipoHerramientaController {
         @ApiResponse(responseCode = "201", description = "El tipo de herramienta fue registrado con éxito"),
         @ApiResponse(responseCode = "400", description = "Los datos enviados no son válidos")
     })
-    public ResponseEntity<TipoHerramientaDTO> agregarTipo(@Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO) {
+    public ResponseEntity<EntityModel<TipoHerramientaDTO>> agregarTipo(@Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO) {
         log.info("Agregando nuevo tipo de herramienta.");
         TipoHerramientaDTO guardada = tipoHerramientaService.save(tipoHerramientaDTO);
-        return new ResponseEntity<>(guardada, HttpStatus.CREATED);
+        return new ResponseEntity<>(assembler.toModel(guardada), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
@@ -81,10 +88,10 @@ public class TipoHerramientaController {
         @ApiResponse(responseCode = "400", description = "Los datos enviados no cumplen las validaciones"),
         @ApiResponse(responseCode = "404", description = "No se encontró el tipo de herramienta con el ID ingresado")
     })
-    public ResponseEntity<TipoHerramientaDTO> editarTipoHerramienta(@PathVariable Integer id, @Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO) {
+    public ResponseEntity<EntityModel<TipoHerramientaDTO>> editarTipoHerramienta(@PathVariable Integer id, @Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO) {
         log.info("Editando el tipo de herramienta con ID: {}", id);
         TipoHerramientaDTO editado = tipoHerramientaService.actualizarTipoHerramienta(id, tipoHerramientaDTO);
-        return new ResponseEntity<>(editado, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(editado), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -93,10 +100,10 @@ public class TipoHerramientaController {
         @ApiResponse(responseCode = "200", description = "El tipo de herramienta ha sido actualizado correctamente"),
         @ApiResponse(responseCode = "404", description = "No se encontró el tipo de herramienta para actualizar")
     })
-    public ResponseEntity<TipoHerramientaDTO> actualizarTipoHerramienta(@PathVariable Integer id, @Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO){
+    public ResponseEntity<EntityModel<TipoHerramientaDTO>> actualizarTipoHerramienta(@PathVariable Integer id, @Valid @RequestBody TipoHerramientaDTO tipoHerramientaDTO){
         log.info("Actualizando el tipo de herramienta con Id: {}", id);
         TipoHerramientaDTO actualizado = tipoHerramientaService.actualizarTipoHerramienta(id, tipoHerramientaDTO);
-        return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(actualizado), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

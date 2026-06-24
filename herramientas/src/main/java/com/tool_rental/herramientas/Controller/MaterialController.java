@@ -3,6 +3,8 @@ package com.tool_rental.herramientas.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tool_rental.herramientas.Assemblers.MaterialModelAssembler;
 import com.tool_rental.herramientas.DTO.MaterialDTO;
-import com.tool_rental.herramientas.Model.Material;
 import com.tool_rental.herramientas.Service.MaterialService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,19 +36,22 @@ public class MaterialController {
     @Autowired
     private MaterialService materialService;
 
+    @Autowired
+    private MaterialModelAssembler assembler;
+
     @GetMapping
     @Operation(summary = "Listar materiales", description = "Retorna todos los materiales registrados en formato DTO.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Listado obtenido con éxito"),
         @ApiResponse(responseCode = "204", description = "No existen registros de materiales en el sistema")
     })
-    public ResponseEntity<List<MaterialDTO>> todosLosMateriales() {
+    public ResponseEntity<CollectionModel<EntityModel<MaterialDTO>>> todosLosMateriales() {
         log.info("Iniciando la consulta del catálogo completo de materiales.");
         List<MaterialDTO> material = materialService.obtenerTodos();
         if (material.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(material, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(material), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -55,10 +60,10 @@ public class MaterialController {
         @ApiResponse(responseCode = "200", description = "Material encontrado exitosamente"),
         @ApiResponse(responseCode = "404", description = "El ID ingresado no corresponde a ningún material registrado")
     })
-    public ResponseEntity<MaterialDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<MaterialDTO>> buscarPorId(@PathVariable Integer id) {
         log.info("Consultando la información detallada para el material con código: {}", id);
         MaterialDTO materialDTO = materialService.buscarPorId(id);
-        return new ResponseEntity<>(materialDTO, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(materialDTO), HttpStatus.OK);
     }
 
     @PostMapping
@@ -67,10 +72,10 @@ public class MaterialController {
         @ApiResponse(responseCode = "201", description = "El material fue registrado exitosamente"),
         @ApiResponse(responseCode = "400", description = "Los datos enviados son inválidos o incompletos")
     })
-    public ResponseEntity<MaterialDTO> agregarmaterial(@Valid @RequestBody MaterialDTO materialDTO) {
+    public ResponseEntity<EntityModel<MaterialDTO>> agregarmaterial(@Valid @RequestBody MaterialDTO materialDTO) {
         log.info("Registrando nuevo material en el sistema.");
         MaterialDTO guardada = materialService.guardarMaterial(materialDTO);
-        return new ResponseEntity<>(guardada, HttpStatus.CREATED);
+        return new ResponseEntity<>(assembler.toModel(guardada), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
@@ -80,10 +85,10 @@ public class MaterialController {
         @ApiResponse(responseCode = "400", description = "Los datos enviados no cumplen las validaciones"),
         @ApiResponse(responseCode = "404", description = "No se encontró el material con el ID ingresado")
     })
-    public ResponseEntity<MaterialDTO> editarMaterial(@PathVariable Integer id, @Valid @RequestBody MaterialDTO materialDTO) {
+    public ResponseEntity<EntityModel<MaterialDTO>> editarMaterial(@PathVariable Integer id, @Valid @RequestBody MaterialDTO materialDTO) {
         log.info("Editando el material con código: {}", id);
-        MaterialDTO editado = materialService.guardarMaterial(materialDTO);
-        return new ResponseEntity<>(editado, HttpStatus.OK);
+        MaterialDTO editado = materialService.actualizarMaterial(id, materialDTO);
+        return new ResponseEntity<>(assembler.toModel(editado), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -93,10 +98,10 @@ public class MaterialController {
         @ApiResponse(responseCode = "400", description = "Los datos proporcionados no cumplen las validaciones"),
         @ApiResponse(responseCode = "404", description = "No se encontró el material con el ID ingresado")
     })
-    public ResponseEntity<MaterialDTO> actualizarMaterial(@PathVariable Integer id, @Valid @RequestBody MaterialDTO materialDTO){
+    public ResponseEntity<EntityModel<MaterialDTO>> actualizarMaterial(@PathVariable Integer id, @Valid @RequestBody MaterialDTO materialDTO){
         log.info("Actualizando el material con código: {}", id);
         MaterialDTO actualizado = materialService.actualizarMaterial(id, materialDTO);
-        return new ResponseEntity<>(actualizado, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(actualizado), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -106,7 +111,7 @@ public class MaterialController {
         @ApiResponse(responseCode = "404", description = "No se encontró un material con el código proporcionado")
     })
     public ResponseEntity<String> eliminarMaterial(@PathVariable Integer id) {
-        log.info("PEliminando el material con código: {}", id);
+        log.info("Eliminando el material con código: {}", id);
         String resultado = materialService.eliminar(id);
         return new ResponseEntity<>(resultado, HttpStatus.OK);
     }

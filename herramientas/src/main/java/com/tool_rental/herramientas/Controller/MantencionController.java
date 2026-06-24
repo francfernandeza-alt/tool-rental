@@ -3,6 +3,8 @@ package com.tool_rental.herramientas.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,9 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tool_rental.herramientas.DTO.HerramientaDTO;
+import com.tool_rental.herramientas.Assemblers.MantencionModelAssembler;
 import com.tool_rental.herramientas.DTO.MantencionDTO;
-import com.tool_rental.herramientas.Model.Mantencion;
 import com.tool_rental.herramientas.Service.MantencionService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,20 +37,23 @@ public class MantencionController {
     @Autowired
     public MantencionService mantencionService;
 
+    @Autowired
+    private MantencionModelAssembler assembler;
+
     @GetMapping
     @Operation(summary = "Listar mantenciones", description = "Retorna el historial completo de mantenciones en formato DTO.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Historial obtenido con éxito"),
         @ApiResponse(responseCode = "204", description = "No existen registros de mantención")
     })
-    public ResponseEntity<List<MantencionDTO>> todasLasMantenciones() {
+    public ResponseEntity<CollectionModel<EntityModel<MantencionDTO>>> todasLasMantenciones() {
         log.info("Consultando el listado completo de mantenimientos realizados.");
         List<MantencionDTO> mantenciones = mantencionService.findAll();
         if (mantenciones.isEmpty()) {
             log.info("Consulta completada, no hay mantenciones registradas.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(mantenciones, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(mantenciones), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -58,10 +62,10 @@ public class MantencionController {
         @ApiResponse(responseCode = "200", description = "Mantenimiento encontrado con éxito"),
         @ApiResponse(responseCode = "404", description = "El código de mantención ingresado no existe")
     })
-    public ResponseEntity<MantencionDTO> buscarPorID(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<MantencionDTO>> buscarPorId(@PathVariable Integer id) {
         log.info("Buscando registro de mantención con código: {}", id);
         MantencionDTO mantencion = mantencionService.findById(id);
-        return new ResponseEntity<>(mantencion, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(mantencion), HttpStatus.OK);
     }
 
     @PostMapping
@@ -70,11 +74,10 @@ public class MantencionController {
         @ApiResponse(responseCode = "201", description = "El mantenimiento fue registrado exitosamente"),
         @ApiResponse(responseCode = "400", description = "Los datos enviados son inválidos o incompletos")
     })
-    public ResponseEntity<MantencionDTO> agregarMantencion(@Valid @RequestBody MantencionDTO mantencionDTO) {
+    public ResponseEntity<EntityModel<MantencionDTO>> agregarMantencion(@Valid @RequestBody MantencionDTO mantencionDTO) {
         log.info("Iniciando el registro de un nuevo mantenimiento en el sistema.");
         MantencionDTO guardada = mantencionService.save(mantencionDTO);
-        return new ResponseEntity<>(guardada, HttpStatus.CREATED);
-
+        return new ResponseEntity<>(assembler.toModel(guardada), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
@@ -84,10 +87,10 @@ public class MantencionController {
         @ApiResponse(responseCode = "400", description = "Los datos enviados no son válidos"),
         @ApiResponse(responseCode = "404", description = "No se encontró el registro para editar")
     })
-    public ResponseEntity<MantencionDTO> editarMantencion(@PathVariable Integer id, @Valid @RequestBody MantencionDTO mantencionDTO) {
+    public ResponseEntity<EntityModel<MantencionDTO>> editarMantencion(@PathVariable Integer id, @Valid @RequestBody MantencionDTO mantencionDTO) {
         log.info("Editando registro de mantención con código: {}", id);
         MantencionDTO editada = mantencionService.actualizarMantencion(id, mantencionDTO);
-        return new ResponseEntity<>(editada, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(editada), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -97,10 +100,10 @@ public class MantencionController {
         @ApiResponse(responseCode = "400", description = "Los datos proporcionados no son válidos"),
         @ApiResponse(responseCode = "404", description = "No existe una herramienta con el ID especificado")
     })
-    public ResponseEntity<MantencionDTO> actualizarMantencion(@PathVariable Integer id, @Valid @RequestBody MantencionDTO mantencionDTO) {
+    public ResponseEntity<EntityModel<MantencionDTO>> actualizarMantencion(@PathVariable Integer id, @Valid @RequestBody MantencionDTO mantencionDTO) {
         log.info("Actualizando registro de mantencion con ID: {}", id);
         MantencionDTO actualizada = mantencionService.actualizarMantencion(id, mantencionDTO);
-        return new ResponseEntity<>(actualizada, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(actualizada), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
