@@ -38,7 +38,6 @@ public class ReservaController {
         if (reservas.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-
         return new ResponseEntity<>(reservas, HttpStatus.OK);
     }
 
@@ -46,11 +45,6 @@ public class ReservaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarReserva(@PathVariable Integer id) {
         ReservaDTO reserva = reservaService.buscarPorId(id);
-
-        if (reserva == null) {
-            return new ResponseEntity<>("Reserva no encontrada", HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(reserva, HttpStatus.OK);
     }
 
@@ -70,11 +64,6 @@ public class ReservaController {
     @PostMapping
     public ResponseEntity<?> guardarReserva(@Valid @RequestBody Reserva reserva) {
         ReservaDTO nuevaReserva = reservaService.guardar(reserva);
-
-        if (nuevaReserva == null) {
-            return new ResponseEntity<>("No se pudo crear la reserva. Verifique fechas, tipo de reserva y método de pago.", HttpStatus.BAD_REQUEST);
-        }
-
         return new ResponseEntity<>(nuevaReserva, HttpStatus.CREATED);
     }
 
@@ -82,23 +71,13 @@ public class ReservaController {
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarReserva(@PathVariable Integer id, @RequestBody Reserva reserva) {
         ReservaDTO reservaActualizada = reservaService.actualizar(id, reserva);
-
-        if (reservaActualizada == null) {
-            return new ResponseEntity<>("No se pudo actualizar la reserva. Verifique datos ingresados.", HttpStatus.BAD_REQUEST);
-        }
-
         return new ResponseEntity<>(reservaActualizada, HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar reserva", description = "Elimina una reserva existente mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarReserva(@PathVariable Integer id) {
-        boolean eliminado = reservaService.eliminar(id);
-
-        if (!eliminado) {
-            return new ResponseEntity<>("Reserva no encontrada", HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<>("Reserva eliminada correctamente", HttpStatus.OK);
+        String mensaje = reservaService.eliminar(id);
+        return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
