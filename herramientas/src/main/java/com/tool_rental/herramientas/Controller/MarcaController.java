@@ -3,6 +3,8 @@ package com.tool_rental.herramientas.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +16,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tool_rental.herramientas.Assemblers.MarcaModelAssembler;
 import com.tool_rental.herramientas.DTO.MarcaDTO;
-import com.tool_rental.herramientas.Model.Marca;
 import com.tool_rental.herramientas.Service.MarcaService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,20 +36,23 @@ public class MarcaController {
     @Autowired
     private MarcaService marcaService;
 
+    @Autowired
+    private MarcaModelAssembler assembler;
+
     @GetMapping
     @Operation(summary = "Listar marcas", description = "Retorna el listado completo de marcas registradas en formato DTO.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Listado obtenido con éxito"),
         @ApiResponse(responseCode = "204", description = "No hay marcas registradas en el sistema")
     })
-    public ResponseEntity<List<MarcaDTO>> todosLasMarcas() {
+    public ResponseEntity<CollectionModel<EntityModel<MarcaDTO>>> todasLasMarcas() {
         log.info("Consultando el listado completo de marcas de herramientas.");
         List<MarcaDTO> marca = marcaService.obtenerTodos();
         if (marca.isEmpty()) {
             log.info("La consulta finalizó sin encontrar registros.");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(marca, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(marca), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -56,10 +61,10 @@ public class MarcaController {
         @ApiResponse(responseCode = "200", description = "Marca encontrada exitosamente"),
         @ApiResponse(responseCode = "404", description = "No existe una marca con el ID proporcionado")
     })
-    public ResponseEntity<MarcaDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<MarcaDTO>> buscarPorId(@PathVariable Integer id) {
         log.info("Buscando marca con código: {}", id);
             MarcaDTO marcaDTO = marcaService.buscarporId(id);
-            return new ResponseEntity<>(marcaDTO, HttpStatus.OK);
+            return new ResponseEntity<>(assembler.toModel(marcaDTO), HttpStatus.OK);
     }
 
     @PostMapping
@@ -68,10 +73,10 @@ public class MarcaController {
         @ApiResponse(responseCode = "201", description = "La marca fue registrada exitosamente"),
         @ApiResponse(responseCode = "400", description = "Los datos enviados son inválidos o incompletos")
     })
-    public ResponseEntity<MarcaDTO> agregarMarca(@Valid @RequestBody MarcaDTO marcaDTO) {
+    public ResponseEntity<EntityModel<MarcaDTO>> agregarMarca(@Valid @RequestBody MarcaDTO marcaDTO) {
         log.info("Registrando nueva marca.");
         MarcaDTO guardada = marcaService.guardarMarca(marcaDTO);
-        return new ResponseEntity<>(guardada, HttpStatus.CREATED);
+        return new ResponseEntity<>(assembler.toModel(guardada), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
@@ -81,10 +86,10 @@ public class MarcaController {
         @ApiResponse(responseCode = "400", description = "Los datos enviados no cumplen las validaciones"),
         @ApiResponse(responseCode = "404", description = "No se encontró la marca con el código proporcionado")
     })
-    public ResponseEntity<MarcaDTO> editarMarca(@PathVariable Integer id, @Valid @RequestBody MarcaDTO marcaDTO) {
+    public ResponseEntity<EntityModel<MarcaDTO>> editarMarca(@PathVariable Integer id, @Valid @RequestBody MarcaDTO marcaDTO) {
         log.info("Editando la marca con código: {}", id);
         MarcaDTO editada = marcaService.actualizarMarca(id, marcaDTO);
-        return new ResponseEntity<>(editada, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(editada), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
@@ -94,10 +99,10 @@ public class MarcaController {
         @ApiResponse(responseCode = "400", description = "Los datos proporcionados no cumplen las validaciones"),
         @ApiResponse(responseCode = "404", description = "No se encontró la marca con el código ingresado")
     })
-    public ResponseEntity<MarcaDTO> actualizarMarca(@PathVariable Integer id, @Valid @RequestBody MarcaDTO marcaDTO){
+    public ResponseEntity<EntityModel<MarcaDTO>> actualizarMarca(@PathVariable Integer id, @Valid @RequestBody MarcaDTO marcaDTO){
         log.info("Actualizando la marca con código: {}", id);
         MarcaDTO actualizada = marcaService.actualizarMarca(id, marcaDTO);
-        return new ResponseEntity<>(actualizada, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(actualizada), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

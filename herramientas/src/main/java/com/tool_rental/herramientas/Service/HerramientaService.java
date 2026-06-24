@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.tool_rental.herramientas.DTO.HerramientaDTO;
-import com.tool_rental.herramientas.DTO.MantencionDTO;
 import com.tool_rental.herramientas.DTO.ResenaDTO;
 import com.tool_rental.herramientas.Model.Herramienta;
 import com.tool_rental.herramientas.Repository.HerramientaRepository;
@@ -43,12 +42,12 @@ public class HerramientaService {
         if (resenas != null && !resenas.isEmpty()) {
             herramientaDTO.setTotalResenas(resenas.size());
             double promedio = resenas.stream().mapToInt(ResenaDTO::getPuntuacion).average().orElse(0.0);
-            herramientaDTO.setPromedioEvaluación(promedio);
+            herramientaDTO.setPromedioEvaluacion(promedio);
             herramientaDTO.setResenas(resenas);
             log.info("Reseñas encontradas: {} promedio de evaluaciones: {}.", resenas.size(), promedio);
         } else {
             herramientaDTO.setTotalResenas(0);
-            herramientaDTO.setPromedioEvaluación(0.0);
+            herramientaDTO.setPromedioEvaluacion(0.0);
             log.info("La herramienta no posee reseñas registradas en el sistema externo.");
         }
         return herramientaDTO;
