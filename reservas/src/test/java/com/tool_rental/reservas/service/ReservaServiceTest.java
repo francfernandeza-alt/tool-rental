@@ -1,0 +1,171 @@
+package com.tool_rental.reservas.service;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import com.tool_rental.reservas.dto.ReservaDTO;
+import com.tool_rental.reservas.model.MetodoPago;
+import com.tool_rental.reservas.model.Reserva;
+import com.tool_rental.reservas.model.TipoReserva;
+import com.tool_rental.reservas.repository.ReservaRepository;
+import com.tool_rental.reservas.validaciones.ReservaValidaciones;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+public class ReservaServiceTest {
+
+    @Mock
+    private ReservaRepository reservaRepository;
+
+    @Mock
+    private ReservaValidaciones reservaValidaciones;
+
+    @InjectMocks
+    private ReservaService reservaService;
+
+    private Reserva reserva;
+    private TipoReserva tipoReserva;
+    private MetodoPago metodoPago;
+
+    @BeforeEach
+    void setUp() {
+        reserva = new Reserva();
+        reserva.setIdReserva(1);
+        reserva.setFechaInicio(LocalDate.of(2026, 6, 20));
+        reserva.setFechaFin(LocalDate.of(2026, 6, 22));
+        reserva.setEstadoReserva("Activa");
+        reserva.setRutUsuario("12345678-9");
+        reserva.setTipoReservaId(1);
+        reserva.setMetodoPagoId(1);
+
+        tipoReserva = new TipoReserva();
+        tipoReserva.setIdTipoReserva(1);
+        tipoReserva.setNombreTipoReserva("Retiro en tienda");
+
+        metodoPago = new MetodoPago();
+        metodoPago.setIdMetodoPago(1);
+        metodoPago.setNombreMetodoPago("Transferencia");
+    }
+
+    @Test
+    void obtenerTodosDebeRetornarListaReservasDTO() {
+        // Given
+        when(reservaRepository.findAll()).thenReturn(List.of(reserva));
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+
+        // When
+        List<ReservaDTO> resultado = reservaService.obtenerTodos();
+
+        // Then
+        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.get(0).getIdReserva());
+        assertEquals("Activa", resultado.get(0).getEstadoReserva());
+        assertEquals("Retiro en tienda", resultado.get(0).getNombreTipoReserva());
+        assertEquals("Transferencia", resultado.get(0).getNombreMetodoPago());
+
+        verify(reservaRepository).findAll();
+    }
+
+    @Test
+    void buscarPorIdDebeRetornarReservaDTOCuandoExiste() {
+        // Given
+        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+
+        // When
+        ReservaDTO resultado = reservaService.buscarPorId(1);
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getIdReserva());
+        assertEquals("Activa", resultado.getEstadoReserva());
+        assertEquals("Retiro en tienda", resultado.getNombreTipoReserva());
+        assertEquals("Transferencia", resultado.getNombreMetodoPago());
+
+        verify(reservaRepository).findById(1);
+    }
+
+    @Test
+    void guardarDebeCrearReservaCuandoDatosSonValidos() {
+        // Given
+        doNothing().when(reservaValidaciones).validarFechas(reserva);
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
+
+        // When
+        ReservaDTO resultado = reservaService.guardar(reserva);
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getIdReserva());
+        assertEquals("Activa", resultado.getEstadoReserva());
+        assertEquals("Retiro en tienda", resultado.getNombreTipoReserva());
+        assertEquals("Transferencia", resultado.getNombreMetodoPago());
+
+        verify(reservaValidaciones).validarFechas(reserva);
+        verify(reservaRepository).save(reserva);
+    }
+
+    @Test
+    void buscarPorRutUsuarioDebeRetornarReservasDelUsuario() {
+        // Given
+        when(reservaRepository.findByRutUsuario("12345678-9")).thenReturn(List.of(reserva));
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+
+        // When
+        List<ReservaDTO> resultado = reservaService.buscarPorRutUsuario("12345678-9");
+
+        // Then
+        assertEquals(1, resultado.size());
+        assertEquals("12345678-9", resultado.get(0).getRutUsuario());
+
+        verify(reservaRepository).findByRutUsuario("12345678-9");
+    }
+
+    @Test
+    void buscarEntidadPorIdDebeRetornarReservaCuandoExiste() {
+        // Given
+        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+
+        // When
+        Reserva resultado = reservaService.buscarEntidadPorId(1);
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getIdReserva());
+
+        verify(reservaRepository).findById(1);
+    }
+
+    @Test
+    void eliminarDebeRetornarMensajeCuandoExiste() {
+        // Given
+        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+
+        // When
+        String resultado = reservaService.eliminar(1);
+
+        // Then
+        assertEquals("La reserva con ID 1 fue eliminada correctamente.", resultado);
+
+        verify(reservaRepository).findById(1);
+        verify(reservaRepository).delete(reserva);
+    }
+}
