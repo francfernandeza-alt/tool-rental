@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.tool_rental.reservas.model.Resena;
+import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.service.ReservaService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +34,6 @@ public class ResenaValidaciones {
             log.error("Validacion fallida: puntuacion fuera de rango {}", resena.getPuntuacion());
             throw new RuntimeException("La puntuacion debe estar entre 1 y 5.");
         }
-
         log.info("Puntuacion de reseña validada correctamente");
     }
 
@@ -43,8 +43,12 @@ public class ResenaValidaciones {
             throw new RuntimeException("El ID de la reserva es obligatorio.");
         }
 
-        reservaService.buscarEntidadPorId(reservaId);
+        Reserva reserva = reservaService.buscarEntidadPorId(reservaId);
 
+        if (reserva == null) {
+            log.error("No se encontro reserva con ID {}", reservaId);
+            throw new RuntimeException("No existe una reserva asociada al ID ingresado.");
+        }
         log.info("Reserva {} validada correctamente", reservaId);
     }
 
@@ -56,14 +60,12 @@ public class ResenaValidaciones {
 
         try {
             log.info("Validando herramienta {} en microservicio externo", herramientaId);
-
             webClientBuilder.build()
                     .get()
                     .uri(herramientasUrl + "/" + herramientaId)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-
             log.info("Herramienta {} validada correctamente", herramientaId);
 
         } catch (Exception e) {
