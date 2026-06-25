@@ -11,6 +11,7 @@ import com.tool_rental.reservas.model.MetodoPago;
 import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.model.TipoReserva;
 import com.tool_rental.reservas.repository.ReservaRepository;
+import com.tool_rental.reservas.validaciones.ReservaValidaciones;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -24,21 +25,18 @@ public class ReservaService {
     private ReservaRepository reservaRepository;
 
     @Autowired
-    private TipoReservaService tipoReservaService;
-
-    @Autowired
-    private MetodoPagoService metodoPagoService;
+    private ReservaValidaciones reservaValidaciones;
 
     public List<ReservaDTO> obtenerTodos() {
-        log.info("obteniendo todas las reservas registradas");
+        log.info("Obteniendo todas las reservas registradas");
 
         List<Reserva> reservas = reservaRepository.findAll();
         List<ReservaDTO> reservasDTO = new ArrayList<>();
-        
-        for (Reserva reserva : reservas){
+
+        for (Reserva reserva : reservas) {
             reservasDTO.add(convertirADTO(reserva));
         }
-        log.info("Total de reservas encontradas : {}", reservasDTO.size());
+        log.info("Total de reservas encontradas: {}", reservasDTO.size());
         return reservasDTO;
     }
 
@@ -47,19 +45,13 @@ public class ReservaService {
 
         Reserva reserva = reservaRepository.findById(id).orElseThrow(() -> {
             log.error("No se encontro reserva con ID {}", id);
-            return new RuntimeException("No se encontro la reserva con el ID ingresado");
+            return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
-
         return convertirADTO(reserva);
     }
 
     public Reserva buscarEntidadPorId(Integer id) {
-        log.info("Buscando entidad Reserva con ID {}", id);
-
-        return reservaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro la entidad Reserva con ID {}", id);
-            return new RuntimeException("No se encontro la reserva asociada");
-        });
+        return reservaRepository.findById(id).orElse(null);
     }
 
     public List<ReservaDTO> buscarPorRutUsuario(String rutUsuario) {
@@ -68,7 +60,7 @@ public class ReservaService {
         List<Reserva> reservas = reservaRepository.findByRutUsuario(rutUsuario);
         List<ReservaDTO> reservasDTO = new ArrayList<>();
 
-        for (Reserva reserva : reservas){
+        for (Reserva reserva : reservas) {
             reservasDTO.add(convertirADTO(reserva));
         }
 
@@ -79,30 +71,23 @@ public class ReservaService {
     public ReservaDTO guardar(Reserva reserva) {
         log.info("Registrando nueva reserva para usuario {}", reserva.getRutUsuario());
 
-        validarFechas(reserva);
-        validarTipoReserva(reserva.getTipoReservaId());
-        validarMetodoPago(reserva.getMetodoPagoId());
+        reservaValidaciones.validarFechas(reserva);
+        reservaValidaciones.validarTipoReserva(reserva.getTipoReservaId());
+        reservaValidaciones.validarMetodoPago(reserva.getMetodoPagoId());
 
-        try {
-            Reserva reservaGuardada = reservaRepository.save(reserva);
+        Reserva reservaGuardada = reservaRepository.save(reserva);
 
-            log.info("Reserva creada correctamente con ID {}", reservaGuardada.getIdReserva());
-            return convertirADTO(reservaGuardada);
-
-        } catch (Exception e) {
-            log.error("Error al guardar reserva para usuario {}", reserva.getRutUsuario(), e);
-            throw new RuntimeException("No se pudo registrar la reserva.");
-        }
+        log.info("Reserva registrada correctamente con ID {}", reservaGuardada.getIdReserva());
+        return convertirADTO(reservaGuardada);
     }
 
     public ReservaDTO actualizar(Integer id, Reserva reserva) {
         log.info("Actualizando reserva con ID {}", id);
 
         Reserva reservaExistente = reservaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontró reserva con ID {}", id);
-            return new RuntimeException("No se encontró la reserva que se desea actualizar.");
+            log.error("No se encontro reserva con ID {}", id);
+            return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
-
         if (reserva.getFechaInicio() != null) {
             reservaExistente.setFechaInicio(reserva.getFechaInicio());
         }
@@ -116,25 +101,19 @@ public class ReservaService {
             reservaExistente.setRutUsuario(reserva.getRutUsuario());
         }
         if (reserva.getTipoReservaId() != null) {
-            validarTipoReserva(reserva.getTipoReservaId());
+            reservaValidaciones.validarTipoReserva(reserva.getTipoReservaId());
             reservaExistente.setTipoReservaId(reserva.getTipoReservaId());
         }
         if (reserva.getMetodoPagoId() != null) {
-            validarMetodoPago(reserva.getMetodoPagoId());
+            reservaValidaciones.validarMetodoPago(reserva.getMetodoPagoId());
             reservaExistente.setMetodoPagoId(reserva.getMetodoPagoId());
         }
-        validarFechas(reservaExistente);
+        reservaValidaciones.validarFechas(reservaExistente);
 
-        try {
-            Reserva reservaActualizada = reservaRepository.save(reservaExistente);
+        Reserva reservaActualizada = reservaRepository.save(reservaExistente);
 
-            log.info("Reserva con ID {} actualizada correctamente", reservaActualizada.getIdReserva());
-            return convertirADTO(reservaActualizada);
-
-        } catch (Exception e) {
-            log.error("Error al actualizar reserva con ID {}", id, e);
-            throw new RuntimeException("No se pudo actualizar la reserva.");
-        }
+        log.info("Reserva con ID {} actualizada correctamente", reservaActualizada.getIdReserva());
+        return convertirADTO(reservaActualizada);
     }
 
     public String eliminar(Integer id) {
@@ -142,64 +121,13 @@ public class ReservaService {
 
         Reserva reserva = reservaRepository.findById(id).orElseThrow(() -> {
             log.error("No se encontro reserva con ID {}", id);
-            return new RuntimeException("No se encontro la reserva que desea eliminar");
+            return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
 
         reservaRepository.delete(reserva);
 
         log.info("Reserva con ID {} eliminada correctamente", id);
-        return "La reserva con ID " + id + " fue eliminada correctamente";
-    }
-
-    private void validarFechas(Reserva reserva) {
-        if (reserva.getFechaInicio() == null) {
-            log.error("Validación fallida: fechaInicio nula");
-            throw new RuntimeException("La fecha de inicio es obligatoria.");
-        }
-        if (reserva.getFechaFin() == null) {
-            log.error("Validación fallida: fechaFin nula");
-            throw new RuntimeException("La fecha de fin es obligatoria.");
-        }
-        if (reserva.getFechaFin().isBefore(reserva.getFechaInicio())) {
-            log.error("Validación fallida: fechaFin {} anterior a fechaInicio {}",
-                    reserva.getFechaFin(),
-                    reserva.getFechaInicio());
-            throw new RuntimeException("La fecha de fin no puede ser anterior a la fecha de inicio.");
-        }
-
-        log.info("Fechas de reserva validadas correctamente");
-    }
-
-    private void validarTipoReserva(Integer tipoReservaId) {
-        if (tipoReservaId == null) {
-            log.error("Validación fallida: tipoReservaId nulo");
-            throw new RuntimeException("El tipo de reserva es obligatorio.");
-        }
-
-        TipoReserva tipoReserva = tipoReservaService.buscarPorId(tipoReservaId);
-
-        if (tipoReserva == null) {
-            log.error("No existe tipo de reserva con ID {}", tipoReservaId);
-            throw new RuntimeException("El tipo de reserva indicado no existe.");
-        }
-
-        log.info("Tipo de reserva {} validado correctamente", tipoReservaId);
-    }
-
-    private void validarMetodoPago(Integer metodoPagoId) {
-        if (metodoPagoId == null) {
-            log.error("Validación fallida: metodoPagoId nulo");
-            throw new RuntimeException("El método de pago es obligatorio.");
-        }
-
-        MetodoPago metodoPago = metodoPagoService.buscarPorId(metodoPagoId);
-
-        if (metodoPago == null) {
-            log.error("No existe método de pago con ID {}", metodoPagoId);
-            throw new RuntimeException("El método de pago indicado no existe.");
-        }
-
-        log.info("Método de pago {} validado correctamente", metodoPagoId);
+        return "La reserva con ID " + id + " fue eliminada correctamente.";
     }
 
     private ReservaDTO convertirADTO(Reserva reserva) {
@@ -213,16 +141,11 @@ public class ReservaService {
         reservaDTO.setTipoReservaId(reserva.getTipoReservaId());
         reservaDTO.setMetodoPagoId(reserva.getMetodoPagoId());
 
-        TipoReserva tipoReserva = tipoReservaService.buscarPorId(reserva.getTipoReservaId());
-        MetodoPago metodoPago = metodoPagoService.buscarPorId(reserva.getMetodoPagoId());
+        TipoReserva tipoReserva = reservaValidaciones.validarTipoReserva(reserva.getTipoReservaId());
+        MetodoPago metodoPago = reservaValidaciones.validarMetodoPago(reserva.getMetodoPagoId());
 
-        if (tipoReserva != null) {
-            reservaDTO.setNombreTipoReserva(tipoReserva.getNombreTipoReserva());
-        }
-
-        if (metodoPago != null) {
-            reservaDTO.setNombreMetodoPago(metodoPago.getNombreMetodoPago());
-        }
+        reservaDTO.setNombreTipoReserva(tipoReserva.getNombreTipoReserva());
+        reservaDTO.setNombreMetodoPago(metodoPago.getNombreMetodoPago());
 
         return reservaDTO;
     }
