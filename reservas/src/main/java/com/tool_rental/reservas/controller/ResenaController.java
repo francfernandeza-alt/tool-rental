@@ -21,10 +21,12 @@ import com.tool_rental.reservas.service.ResenaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/resenas")
 @Tag(name = "Reseñas", description = "Endpoints para gestionar reseñas asociadas a reservas y herramientas")
+@Slf4j
 public class ResenaController {
 
     @Autowired
@@ -33,72 +35,103 @@ public class ResenaController {
     @Operation(summary = "Listar reseñas", description = "Obtiene todas las reseñas registradas")
     @GetMapping
     public ResponseEntity<?> listarResenas() {
+        log.info("Solicitud recibida: listar reseñas");
         List<ResenaDTO> resenas = resenaService.obtenerTodos();
 
         if (resenas.isEmpty()) {
+            log.warn("No existen reseñas registradas");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        log.info("Reseñas listadas correctamente. Total: {}", resenas.size());
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseña por ID", description = "Obtiene una reseña mediante su identificador")
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarResena(@PathVariable Integer id) {
+        log.info("Solicitud recibida: buscar reseña con ID {}", id);
         ResenaDTO resena = resenaService.buscarPorId(id);
+
+        log.info("Reseña con ID {} encontrada correctamente", id);
         return new ResponseEntity<>(resena, HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por usuario", description = "Obtiene las reseñas asociadas a un RUT de usuario")
     @GetMapping("/usuario/{rutUsuario}")
     public ResponseEntity<?> buscarResenasPorUsuario(@PathVariable String rutUsuario) {
+        log.info("Solicitud recibida: buscar reseñas del usuario {}", rutUsuario);
         List<ResenaDTO> resenas = resenaService.buscarPorRutUsuario(rutUsuario);
 
         if (resenas.isEmpty()) {
+            log.warn("No existen reseñas asociadas al usuario {}", rutUsuario);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        log.info("Reseñas del usuario {} obtenidas correctamente. Total: {}", rutUsuario, resenas.size());
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por herramienta", description = "Obtiene las reseñas asociadas a una herramienta")
     @GetMapping("/herramienta/{herramientaId}")
     public ResponseEntity<?> buscarResenasPorHerramienta(@PathVariable Integer herramientaId) {
+        log.info("Solicitud recibida: buscar reseñas de la herramienta {}", herramientaId);
         List<ResenaDTO> resenas = resenaService.buscarPorHerramientaId(herramientaId);
 
         if (resenas.isEmpty()) {
+            log.warn("No existen reseñas asociadas a la herramienta {}", herramientaId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        log.info("Reseñas de la herramienta {} obtenidas correctamente. Total: {}", herramientaId, resenas.size());
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por reserva", description = "Obtiene las reseñas asociadas a una reserva")
     @GetMapping("/reserva/{reservaId}")
     public ResponseEntity<?> buscarResenasPorReserva(@PathVariable Integer reservaId) {
+        log.info("Solicitud recibida: buscar reseñas de la reserva {}", reservaId);
         List<ResenaDTO> resenas = resenaService.buscarPorReservaId(reservaId);
 
         if (resenas.isEmpty()) {
+            log.warn("No existen reseñas asociadas a la reserva {}", reservaId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
+
+        log.info("Reseñas de la reserva {} obtenidas correctamente. Total: {}", reservaId, resenas.size());
         return new ResponseEntity<>(resenas, HttpStatus.OK);
     }
 
     @Operation(summary = "Crear reseña", description = "Registra una reseña validando puntuación, reserva y herramienta")
     @PostMapping
     public ResponseEntity<?> guardarResena(@Valid @RequestBody Resena resena) {
+        log.info("Solicitud recibida: crear reseña para reserva {} y herramienta {}",
+                resena.getReservaId(),
+                resena.getHerramientaId());
+
         ResenaDTO nuevaResena = resenaService.guardar(resena);
+
+        log.info("Reseña creada correctamente con ID {}", nuevaResena.getIdResena());
         return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar reseña", description = "Actualiza una reseña existente")
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
+        log.info("Solicitud recibida: actualizar reseña con ID {}", id);
         ResenaDTO resenaActualizada = resenaService.actualizar(id, resena);
+
+        log.info("Reseña con ID {} actualizada correctamente", id);
         return new ResponseEntity<>(resenaActualizada, HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar reseña", description = "Elimina una reseña mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminarResena(@PathVariable Integer id) {
+        log.info("Solicitud recibida: eliminar reseña con ID {}", id);
         String mensaje = resenaService.eliminar(id);
+
+        log.info("Reseña con ID {} eliminada correctamente", id);
         return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
