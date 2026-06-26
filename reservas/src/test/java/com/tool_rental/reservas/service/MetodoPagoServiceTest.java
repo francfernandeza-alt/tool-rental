@@ -103,7 +103,7 @@ public class MetodoPagoServiceTest {
     void actualizarDebeRetornarMetodoPagoActualizadoCuandoExiste() {
         // Given
         MetodoPago datosActualizados = new MetodoPago();
-        datosActualizados.setNombreMetodoPago("Tarjeta de débito");
+        datosActualizados.setNombreMetodoPago("Tarjeta de dÃ©bito");
 
         when(metodoPagoRepository.findById(1)).thenReturn(Optional.of(metodoPago));
         when(metodoPagoRepository.save(metodoPago)).thenReturn(metodoPago);
@@ -113,7 +113,7 @@ public class MetodoPagoServiceTest {
 
         // Then
         assertNotNull(resultado);
-        assertEquals("Tarjeta de débito", resultado.getNombreMetodoPago());
+        assertEquals("Tarjeta de dÃ©bito", resultado.getNombreMetodoPago());
 
         verify(metodoPagoRepository).findById(1);
         verify(metodoPagoRepository).save(metodoPago);
@@ -123,7 +123,7 @@ public class MetodoPagoServiceTest {
     void actualizarDebeRetornarNullCuandoNoExiste() {
         // Given
         MetodoPago datosActualizados = new MetodoPago();
-        datosActualizados.setNombreMetodoPago("Tarjeta de débito");
+        datosActualizados.setNombreMetodoPago("Tarjeta de dÃ©bito");
 
         when(metodoPagoRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -165,3 +165,5 @@ public class MetodoPagoServiceTest {
         verify(metodoPagoRepository).findById(99);
     }
 }
+
+

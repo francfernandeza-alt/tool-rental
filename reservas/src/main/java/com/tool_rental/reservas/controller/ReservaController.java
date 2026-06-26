@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tool_rental.reservas.Assembler.ReservaModelAssembler;
+import com.tool_rental.reservas.assembler.ReservaModelAssembler;
 import com.tool_rental.reservas.dto.ReservaDTO;
 import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.service.ReservaService;
@@ -53,7 +53,7 @@ public class ReservaController {
         return new ResponseEntity<>(assembler.toCollectionModel(reservas), HttpStatus.OK);
     }
 
-    @Operation(summary = "Buscar reserva por ID", description = "Obtiene una reserva específica mediante su identificador")
+    @Operation(summary = "Buscar reserva por ID", description = "Obtiene una reserva especÃ­fica mediante su identificador")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ReservaDTO>> buscarReserva(@PathVariable Integer id) {
         log.info("Solicitud recibida: buscar reserva con ID {}", id);
@@ -78,7 +78,7 @@ public class ReservaController {
         return new ResponseEntity<>(assembler.toCollectionModel(reservas), HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear reserva", description = "Registra una nueva reserva validando fechas, tipo de reserva y método de pago")
+    @Operation(summary = "Crear reserva", description = "Registra una nueva reserva validando fechas, tipo de reserva y mÃ©todo de pago")
     @PostMapping
     public ResponseEntity<EntityModel<ReservaDTO>> guardarReserva(@Valid @RequestBody Reserva reserva) {
         log.info("Solicitud recibida: crear reserva para usuario {}", reserva.getRutUsuario());
@@ -108,3 +108,5 @@ public class ReservaController {
         return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
+
+

@@ -16,3 +16,5 @@ public interface ResenaRepository extends JpaRepository<Resena, Integer> {
 
     List<Resena> findByReservaId(Integer reservaId);
 }
+
+

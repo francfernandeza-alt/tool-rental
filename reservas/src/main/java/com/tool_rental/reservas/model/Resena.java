@@ -28,13 +28,13 @@ public class Resena {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idResena;
 
-    @NotNull(message = "La puntuación es obligatoria")
-    @Min(value = 1, message = "La puntuación mínima es 1")
-    @Max(value = 5, message = "La puntuación máxima es 5")
+    @NotNull(message = "La puntuaciÃ³n es obligatoria")
+    @Min(value = 1, message = "La puntuaciÃ³n mÃ­nima es 1")
+    @Max(value = 5, message = "La puntuaciÃ³n mÃ¡xima es 5")
     @Column(nullable = false)
     private Integer puntuacion;
 
-    @NotBlank(message = "El comentario de la reseña es obligatorio")
+    @NotBlank(message = "El comentario de la reseÃ±a es obligatorio")
     @Size(min = 3, max = 255, message = "El comentario debe tener entre 3 y 255 caracteres")
     @Column(nullable = false, length = 255)
     private String comentario;
@@ -55,3 +55,5 @@ public class Resena {
     @Column(nullable = false)
     private Integer reservaId;
 }
+
+

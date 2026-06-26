@@ -15,6 +15,8 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Microservicio de Reservas")
                         .version("1.0")
-                        .description("Documentación de endpoints para gestión de reservas, tipos de reserva, métodos de pago y reseñas."));
+                        .description("DocumentaciÃ³n de endpoints para gestiÃ³n de reservas, tipos de reserva, mÃ©todos de pago y reseÃ±as."));
     }
 }
+
+

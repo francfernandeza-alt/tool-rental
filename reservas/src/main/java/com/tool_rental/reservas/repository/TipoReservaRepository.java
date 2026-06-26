@@ -8,3 +8,5 @@ import com.tool_rental.reservas.model.TipoReserva;
 @Repository
 public interface TipoReservaRepository extends JpaRepository<TipoReserva, Integer> {
 }
+
+

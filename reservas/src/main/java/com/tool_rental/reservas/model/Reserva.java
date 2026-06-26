@@ -52,3 +52,4 @@ public class Reserva {
     @Column(nullable = false)
     private Integer metodoPagoId;
 }
+

@@ -8,3 +8,5 @@ import com.tool_rental.reservas.model.MetodoPago;
 @Repository
 public interface MetodoPagoRepository extends JpaRepository<MetodoPago, Integer> {
 }
+
+

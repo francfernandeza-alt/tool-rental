@@ -27,14 +27,14 @@ public class ResenaValidaciones {
     public void validarPuntuacion(Resena resena) {
         if (resena.getPuntuacion() == null) {
             log.error("Validacion fallida: puntuacion nula");
-            throw new RuntimeException("La puntuacion de la reseña es obligatoria.");
+            throw new RuntimeException("La puntuacion de la reseÃ±a es obligatoria.");
         }
 
         if (resena.getPuntuacion() < 1 || resena.getPuntuacion() > 5) {
             log.error("Validacion fallida: puntuacion fuera de rango {}", resena.getPuntuacion());
             throw new RuntimeException("La puntuacion debe estar entre 1 y 5.");
         }
-        log.info("Puntuacion de reseña validada correctamente");
+        log.info("Puntuacion de reseÃ±a validada correctamente");
     }
 
     public void validarReservaExistente(Integer reservaId) {
@@ -74,3 +74,5 @@ public class ResenaValidaciones {
         }
     }
 }
+
+

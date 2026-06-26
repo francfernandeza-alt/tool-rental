@@ -12,3 +12,5 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     List<Reserva> findByRutUsuario(String rutUsuario);
 }
+
+

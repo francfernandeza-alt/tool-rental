@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
         String mensajeMinuscula = mensaje.toLowerCase();
 
         if (mensajeMinuscula.contains("no se encontro")
-                || mensajeMinuscula.contains("no se encontró")
+                || mensajeMinuscula.contains("no se encontrÃ³")
                 || mensajeMinuscula.contains("no existe")) {
             return HttpStatus.NOT_FOUND;
         }
@@ -74,3 +74,5 @@ public class GlobalExceptionHandler {
         return HttpStatus.BAD_REQUEST;
     }
 }
+
+

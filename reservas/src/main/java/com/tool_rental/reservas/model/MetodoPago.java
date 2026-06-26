@@ -28,3 +28,5 @@ public class MetodoPago {
     @Column(nullable = false, length = 100)
     private String nombreMetodoPago;
 }
+
+
