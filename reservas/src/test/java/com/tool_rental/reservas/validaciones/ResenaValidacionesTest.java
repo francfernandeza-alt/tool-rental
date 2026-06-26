@@ -55,7 +55,7 @@ public class ResenaValidacionesTest {
         ReflectionTestUtils.setField(
                 resenaValidaciones,
                 "herramientasUrl",
-                "http://localhost:8081/api/v1/herramientas"
+                "http://localhost:8083/api/v1/herramientas"
         );
 
         resena = new Resena();
@@ -146,7 +146,7 @@ public class ResenaValidacionesTest {
         // Given
         when(webClientBuilder.build()).thenReturn(webClient);
         when(webClient.get()).thenReturn(requestHeadersUriSpec);
-        when(requestHeadersUriSpec.uri("http://localhost:8081/api/v1/herramientas/1")).thenReturn(requestHeadersSpec);
+        when(requestHeadersUriSpec.uri("http://localhost:8083/api/v1/herramientas/1")).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
         when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("{}"));
 
@@ -155,7 +155,7 @@ public class ResenaValidacionesTest {
 
         verify(webClientBuilder).build();
         verify(webClient).get();
-        verify(requestHeadersUriSpec).uri("http://localhost:8081/api/v1/herramientas/1");
+        verify(requestHeadersUriSpec).uri("http://localhost:8083/api/v1/herramientas/1");
         verify(requestHeadersSpec).retrieve();
         verify(responseSpec).bodyToMono(String.class);
     }
