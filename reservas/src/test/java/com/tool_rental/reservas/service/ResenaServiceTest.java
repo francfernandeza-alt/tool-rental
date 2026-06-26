@@ -235,7 +235,7 @@ public class ResenaServiceTest {
         String resultado = resenaService.eliminar(1);
 
         // Then
-        assertEquals("La reseÃ±a con ID 1 fue eliminada correctamente.", resultado);
+        assertEquals("La resena con ID 1 fue eliminada correctamente.", resultado);
 
         verify(resenaRepository).findById(1);
         verify(resenaRepository).delete(resena);

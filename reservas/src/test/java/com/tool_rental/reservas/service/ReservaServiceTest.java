@@ -1,16 +1,22 @@
 package com.tool_rental.reservas.service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tool_rental.reservas.dto.ReservaDTO;
 import com.tool_rental.reservas.model.MetodoPago;
@@ -18,13 +24,6 @@ import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.model.TipoReserva;
 import com.tool_rental.reservas.repository.ReservaRepository;
 import com.tool_rental.reservas.validaciones.ReservaValidaciones;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservaServiceTest {

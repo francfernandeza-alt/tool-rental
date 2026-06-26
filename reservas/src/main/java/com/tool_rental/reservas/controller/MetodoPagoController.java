@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/metodos-pago")
-@Tag(name = "MÃ©todos de pago", description = "Endpoints para administrar mÃ©todos de pago")
+@Tag(name = "Metodos de pago", description = "Endpoints para administrar metodos de pago")
 @Slf4j
 public class MetodoPagoController {
 
@@ -52,7 +52,7 @@ public class MetodoPagoController {
         return new ResponseEntity<>(assembler.toCollectionModel(metodosPago), HttpStatus.OK);
     }
 
-    @Operation(summary = "Buscar mÃ©todo de pago por ID")
+    @Operation(summary = "Buscar metodo de pago por ID")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<MetodoPago>> buscarMetodoPago(@PathVariable Integer id) {
         log.info("Solicitud recibida: buscar metodo de pago con ID {}", id);
@@ -67,7 +67,7 @@ public class MetodoPagoController {
         return new ResponseEntity<>(assembler.toModel(metodoPago), HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear mÃ©todo de pago")
+    @Operation(summary = "Crear metodo de pago")
     @PostMapping
     public ResponseEntity<EntityModel<MetodoPago>> guardarMetodoPago(@Valid @RequestBody MetodoPago metodoPago) {
         log.info("Solicitud recibida: crear metodo de pago");
@@ -77,7 +77,7 @@ public class MetodoPagoController {
         return new ResponseEntity<>(assembler.toModel(nuevoMetodoPago), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Actualizar mÃ©todo de pago")
+    @Operation(summary = "Actualizar metodo de pago")
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<MetodoPago>> actualizarMetodoPago(@PathVariable Integer id, @Valid @RequestBody MetodoPago metodoPago) {
         log.info("Solicitud recibida: actualizar metodo de pago con ID {}", id);
@@ -92,7 +92,7 @@ public class MetodoPagoController {
         return new ResponseEntity<>(assembler.toModel(metodoPagoActualizado), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar mÃ©todo de pago")
+    @Operation(summary = "Eliminar metodo de pago")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarMetodoPago(@PathVariable Integer id) {
         log.info("Solicitud recibida: eliminar metodo de pago con ID {}", id);
@@ -100,11 +100,11 @@ public class MetodoPagoController {
 
         if (!eliminado) {
             log.warn("No se pudo eliminar. Metodo de pago con ID {} no existe", id);
-            return new ResponseEntity<>("MÃ©todo de pago no encontrado", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Metodo de pago no encontrado", HttpStatus.NOT_FOUND);
         }
 
         log.info("Metodo de pago con ID {} eliminado correctamente", id);
-        return new ResponseEntity<>("MÃ©todo de pago eliminado correctamente", HttpStatus.OK);
+        return new ResponseEntity<>("Metodo de pago eliminado correctamente", HttpStatus.OK);
     }
 }
 

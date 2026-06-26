@@ -53,7 +53,7 @@ public class ReservaController {
         return new ResponseEntity<>(assembler.toCollectionModel(reservas), HttpStatus.OK);
     }
 
-    @Operation(summary = "Buscar reserva por ID", description = "Obtiene una reserva especÃ­fica mediante su identificador")
+    @Operation(summary = "Buscar reserva por ID", description = "Obtiene una reserva especifica mediante su identificador")
     @GetMapping("/{id}")
     public ResponseEntity<EntityModel<ReservaDTO>> buscarReserva(@PathVariable Integer id) {
         log.info("Solicitud recibida: buscar reserva con ID {}", id);
@@ -78,7 +78,7 @@ public class ReservaController {
         return new ResponseEntity<>(assembler.toCollectionModel(reservas), HttpStatus.OK);
     }
 
-    @Operation(summary = "Crear reserva", description = "Registra una nueva reserva validando fechas, tipo de reserva y mÃ©todo de pago")
+    @Operation(summary = "Crear reserva", description = "Registra una nueva reserva validando fechas, tipo de reserva y metodo de pago")
     @PostMapping
     public ResponseEntity<EntityModel<ReservaDTO>> guardarReserva(@Valid @RequestBody Reserva reserva) {
         log.info("Solicitud recibida: crear reserva para usuario {}", reserva.getRutUsuario());
