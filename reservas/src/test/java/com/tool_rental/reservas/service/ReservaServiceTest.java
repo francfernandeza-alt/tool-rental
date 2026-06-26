@@ -2,6 +2,8 @@ package com.tool_rental.reservas.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,6 +103,63 @@ public class ReservaServiceTest {
     }
 
     @Test
+    void buscarPorIdDebeLanzarErrorCuandoNoExiste() {
+        // Given
+        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaService.buscarPorId(99));
+
+        verify(reservaRepository).findById(99);
+    }
+
+    @Test
+    void buscarEntidadPorIdDebeRetornarReservaCuandoExiste() {
+        // Given
+        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+
+        // When
+        Reserva resultado = reservaService.buscarEntidadPorId(1);
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getIdReserva());
+
+        verify(reservaRepository).findById(1);
+    }
+
+    @Test
+    void buscarEntidadPorIdDebeRetornarNullCuandoNoExiste() {
+        // Given
+        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+
+        // When
+        Reserva resultado = reservaService.buscarEntidadPorId(99);
+
+        // Then
+        assertNull(resultado);
+
+        verify(reservaRepository).findById(99);
+    }
+
+    @Test
+    void buscarPorRutUsuarioDebeRetornarReservasDelUsuario() {
+        // Given
+        when(reservaRepository.findByRutUsuario("12345678-9")).thenReturn(List.of(reserva));
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+
+        // When
+        List<ReservaDTO> resultado = reservaService.buscarPorRutUsuario("12345678-9");
+
+        // Then
+        assertEquals(1, resultado.size());
+        assertEquals("12345678-9", resultado.get(0).getRutUsuario());
+
+        verify(reservaRepository).findByRutUsuario("12345678-9");
+    }
+
+    @Test
     void guardarDebeCrearReservaCuandoDatosSonValidos() {
         // Given
         doNothing().when(reservaValidaciones).validarFechas(reserva);
@@ -123,35 +182,49 @@ public class ReservaServiceTest {
     }
 
     @Test
-    void buscarPorRutUsuarioDebeRetornarReservasDelUsuario() {
+    void actualizarDebeModificarReservaCuandoExiste() {
         // Given
-        when(reservaRepository.findByRutUsuario("12345678-9")).thenReturn(List.of(reserva));
-        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
-        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+        Reserva datosActualizados = new Reserva();
+        datosActualizados.setFechaInicio(LocalDate.of(2026, 6, 21));
+        datosActualizados.setFechaFin(LocalDate.of(2026, 6, 23));
+        datosActualizados.setEstadoReserva("Finalizada");
+        datosActualizados.setRutUsuario("12345678-9");
+        datosActualizados.setTipoReservaId(1);
+        datosActualizados.setMetodoPagoId(1);
 
-        // When
-        List<ReservaDTO> resultado = reservaService.buscarPorRutUsuario("12345678-9");
-
-        // Then
-        assertEquals(1, resultado.size());
-        assertEquals("12345678-9", resultado.get(0).getRutUsuario());
-
-        verify(reservaRepository).findByRutUsuario("12345678-9");
-    }
-
-    @Test
-    void buscarEntidadPorIdDebeRetornarReservaCuandoExiste() {
-        // Given
         when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
 
+        when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
+        when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
+        doNothing().when(reservaValidaciones).validarFechas(reserva);
+
+        when(reservaRepository.save(reserva)).thenReturn(reserva);
+
         // When
-        Reserva resultado = reservaService.buscarEntidadPorId(1);
+        ReservaDTO resultado = reservaService.actualizar(1, datosActualizados);
 
         // Then
         assertNotNull(resultado);
-        assertEquals(1, resultado.getIdReserva());
+        assertEquals("Finalizada", resultado.getEstadoReserva());
+        assertEquals(LocalDate.of(2026, 6, 21), resultado.getFechaInicio());
+        assertEquals(LocalDate.of(2026, 6, 23), resultado.getFechaFin());
 
         verify(reservaRepository).findById(1);
+        verify(reservaRepository).save(reserva);
+    }
+
+    @Test
+    void actualizarDebeLanzarErrorCuandoNoExiste() {
+        // Given
+        Reserva datosActualizados = new Reserva();
+        datosActualizados.setEstadoReserva("Finalizada");
+
+        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaService.actualizar(99, datosActualizados));
+
+        verify(reservaRepository).findById(99);
     }
 
     @Test
@@ -167,5 +240,16 @@ public class ReservaServiceTest {
 
         verify(reservaRepository).findById(1);
         verify(reservaRepository).delete(reserva);
+    }
+
+    @Test
+    void eliminarDebeLanzarErrorCuandoNoExiste() {
+        // Given
+        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaService.eliminar(99));
+
+        verify(reservaRepository).findById(99);
     }
 }

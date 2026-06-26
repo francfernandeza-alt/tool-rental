@@ -1,25 +1,24 @@
 package com.tool_rental.reservas.validaciones;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.time.LocalDate;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tool_rental.reservas.model.MetodoPago;
 import com.tool_rental.reservas.model.Reserva;
 import com.tool_rental.reservas.model.TipoReserva;
 import com.tool_rental.reservas.service.MetodoPagoService;
 import com.tool_rental.reservas.service.TipoReservaService;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservaValidacionesTest {
@@ -68,19 +67,28 @@ public class ReservaValidacionesTest {
     }
 
     @Test
-    void validarFechasDebeLanzarErrorSiFechaFinEsAnterior() {
+    void validarFechasDebeLanzarErrorSiFechaInicioEsNula() {
         // Given
-        reserva.setFechaInicio(LocalDate.of(2026, 6, 20));
-        reserva.setFechaFin(LocalDate.of(2026, 6, 18));
+        reserva.setFechaInicio(null);
 
         // When / Then
         assertThrows(RuntimeException.class, () -> reservaValidaciones.validarFechas(reserva));
     }
 
     @Test
-    void validarFechasDebeLanzarErrorSiFechaInicioEsNula() {
+    void validarFechasDebeLanzarErrorSiFechaFinEsNula() {
         // Given
-        reserva.setFechaInicio(null);
+        reserva.setFechaFin(null);
+
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaValidaciones.validarFechas(reserva));
+    }
+
+    @Test
+    void validarFechasDebeLanzarErrorSiFechaFinEsAnterior() {
+        // Given
+        reserva.setFechaInicio(LocalDate.of(2026, 6, 20));
+        reserva.setFechaFin(LocalDate.of(2026, 6, 18));
 
         // When / Then
         assertThrows(RuntimeException.class, () -> reservaValidaciones.validarFechas(reserva));
@@ -98,6 +106,12 @@ public class ReservaValidacionesTest {
         assertEquals("Retiro en tienda", resultado.getNombreTipoReserva());
 
         verify(tipoReservaService).buscarPorId(1);
+    }
+
+    @Test
+    void validarTipoReservaDebeLanzarErrorSiIdEsNulo() {
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaValidaciones.validarTipoReserva(null));
     }
 
     @Test
@@ -123,6 +137,12 @@ public class ReservaValidacionesTest {
         assertEquals("Transferencia", resultado.getNombreMetodoPago());
 
         verify(metodoPagoService).buscarPorId(1);
+    }
+
+    @Test
+    void validarMetodoPagoDebeLanzarErrorSiIdEsNulo() {
+        // When / Then
+        assertThrows(RuntimeException.class, () -> reservaValidaciones.validarMetodoPago(null));
     }
 
     @Test
