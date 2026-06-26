@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: herramientas
+          uri: lb://herramientas
+          predicates:
+            - Path=/api/v1/herramientas/**
+        - id: reservas-service
+          uri: lb://reservas-service
+          predicates:
+            - Path=/api/v1/resenas/**
+        - id: usuario-service
+          uri: lb://usuario-service
+          predicates:
+            - Path=/api/v1/usuarios/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

@@ -32,7 +32,7 @@ public class HerramientaService {
         return herramientas.stream().map(herramienta -> {
             HerramientaDTO dto = convertirADTO(herramienta);
             try {
-                List <ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + herramienta.getIdHerramienta())
+                List <ResenaDTO> resenas = webClientBuilder.build().get().uri("lb://reservas-service/api/v1/resenas/herramienta/" + herramienta.getIdHerramienta())
                     .retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
                 if(resenas != null && !resenas.isEmpty()) {
                     dto.setTotalResenas(resenas.size());
@@ -59,7 +59,7 @@ public class HerramientaService {
             new RuntimeException("No se encontró la herramienta con el ID ingresado"));
         List<ResenaDTO> resenas = Collections.emptyList();
         try {
-            resenas = webClientBuilder.build().get().uri("http://localhost:8082/api/v1/resenas/herramientas/" + id)
+            resenas = webClientBuilder.build().get().uri("lb://reservas-service/api/v1/resenas/herramienta/" + id)
             .retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
         } catch (Exception e) {
             log.error("Fallo inesperado, reseñas no disponible momentaneamente.");
