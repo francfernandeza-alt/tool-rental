@@ -3,6 +3,8 @@ package com.tool_rental.reservas.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tool_rental.reservas.Assembler.ResenaModelAssembler;
 import com.tool_rental.reservas.dto.ResenaDTO;
 import com.tool_rental.reservas.model.Resena;
 import com.tool_rental.reservas.service.ResenaService;
@@ -32,9 +35,12 @@ public class ResenaController {
     @Autowired
     private ResenaService resenaService;
 
+    @Autowired
+    private ResenaModelAssembler assembler;
+
     @Operation(summary = "Listar reseñas", description = "Obtiene todas las reseñas registradas")
     @GetMapping
-    public ResponseEntity<?> listarResenas() {
+    public ResponseEntity<CollectionModel<EntityModel<ResenaDTO>>> listarResenas() {
         log.info("Solicitud recibida: listar reseñas");
         List<ResenaDTO> resenas = resenaService.obtenerTodos();
 
@@ -44,22 +50,22 @@ public class ResenaController {
         }
 
         log.info("Reseñas listadas correctamente. Total: {}", resenas.size());
-        return new ResponseEntity<>(resenas, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(resenas), HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseña por ID", description = "Obtiene una reseña mediante su identificador")
     @GetMapping("/{id}")
-    public ResponseEntity<?> buscarResena(@PathVariable Integer id) {
+    public ResponseEntity<EntityModel<ResenaDTO>> buscarResena(@PathVariable Integer id) {
         log.info("Solicitud recibida: buscar reseña con ID {}", id);
         ResenaDTO resena = resenaService.buscarPorId(id);
 
         log.info("Reseña con ID {} encontrada correctamente", id);
-        return new ResponseEntity<>(resena, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(resena), HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por usuario", description = "Obtiene las reseñas asociadas a un RUT de usuario")
     @GetMapping("/usuario/{rutUsuario}")
-    public ResponseEntity<?> buscarResenasPorUsuario(@PathVariable String rutUsuario) {
+    public ResponseEntity<CollectionModel<EntityModel<ResenaDTO>>> buscarResenasPorUsuario(@PathVariable String rutUsuario) {
         log.info("Solicitud recibida: buscar reseñas del usuario {}", rutUsuario);
         List<ResenaDTO> resenas = resenaService.buscarPorRutUsuario(rutUsuario);
 
@@ -69,12 +75,12 @@ public class ResenaController {
         }
 
         log.info("Reseñas del usuario {} obtenidas correctamente. Total: {}", rutUsuario, resenas.size());
-        return new ResponseEntity<>(resenas, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(resenas), HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por herramienta", description = "Obtiene las reseñas asociadas a una herramienta")
     @GetMapping("/herramienta/{herramientaId}")
-    public ResponseEntity<?> buscarResenasPorHerramienta(@PathVariable Integer herramientaId) {
+    public ResponseEntity<CollectionModel<EntityModel<ResenaDTO>>> buscarResenasPorHerramienta(@PathVariable Integer herramientaId) {
         log.info("Solicitud recibida: buscar reseñas de la herramienta {}", herramientaId);
         List<ResenaDTO> resenas = resenaService.buscarPorHerramientaId(herramientaId);
 
@@ -84,12 +90,12 @@ public class ResenaController {
         }
 
         log.info("Reseñas de la herramienta {} obtenidas correctamente. Total: {}", herramientaId, resenas.size());
-        return new ResponseEntity<>(resenas, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(resenas), HttpStatus.OK);
     }
 
     @Operation(summary = "Buscar reseñas por reserva", description = "Obtiene las reseñas asociadas a una reserva")
     @GetMapping("/reserva/{reservaId}")
-    public ResponseEntity<?> buscarResenasPorReserva(@PathVariable Integer reservaId) {
+    public ResponseEntity<CollectionModel<EntityModel<ResenaDTO>>> buscarResenasPorReserva(@PathVariable Integer reservaId) {
         log.info("Solicitud recibida: buscar reseñas de la reserva {}", reservaId);
         List<ResenaDTO> resenas = resenaService.buscarPorReservaId(reservaId);
 
@@ -99,35 +105,34 @@ public class ResenaController {
         }
 
         log.info("Reseñas de la reserva {} obtenidas correctamente. Total: {}", reservaId, resenas.size());
-        return new ResponseEntity<>(resenas, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toCollectionModel(resenas), HttpStatus.OK);
     }
 
     @Operation(summary = "Crear reseña", description = "Registra una reseña validando puntuación, reserva y herramienta")
     @PostMapping
-    public ResponseEntity<?> guardarResena(@Valid @RequestBody Resena resena) {
+    public ResponseEntity<EntityModel<ResenaDTO>> guardarResena(@Valid @RequestBody Resena resena) {
         log.info("Solicitud recibida: crear reseña para reserva {} y herramienta {}",
                 resena.getReservaId(),
                 resena.getHerramientaId());
-
         ResenaDTO nuevaResena = resenaService.guardar(resena);
 
         log.info("Reseña creada correctamente con ID {}", nuevaResena.getIdResena());
-        return new ResponseEntity<>(nuevaResena, HttpStatus.CREATED);
+        return new ResponseEntity<>(assembler.toModel(nuevaResena), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Actualizar reseña", description = "Actualiza una reseña existente")
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
+    public ResponseEntity<EntityModel<ResenaDTO>> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
         log.info("Solicitud recibida: actualizar reseña con ID {}", id);
         ResenaDTO resenaActualizada = resenaService.actualizar(id, resena);
 
         log.info("Reseña con ID {} actualizada correctamente", id);
-        return new ResponseEntity<>(resenaActualizada, HttpStatus.OK);
+        return new ResponseEntity<>(assembler.toModel(resenaActualizada), HttpStatus.OK);
     }
 
     @Operation(summary = "Eliminar reseña", description = "Elimina una reseña mediante su identificador")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarResena(@PathVariable Integer id) {
+    public ResponseEntity<String> eliminarResena(@PathVariable Integer id) {
         log.info("Solicitud recibida: eliminar reseña con ID {}", id);
         String mensaje = resenaService.eliminar(id);
 
