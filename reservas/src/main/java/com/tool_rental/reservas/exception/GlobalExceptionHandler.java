@@ -32,6 +32,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDTO, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorDTO> erroresDeNegocio(RuntimeException e) {
+        HttpStatus estado = obtenerEstado(e.getMessage());
+
+        ErrorDTO errorDTO = new ErrorDTO();
+
+        errorDTO.setMensaje("No se pudo completar la operacion.");
+        errorDTO.setDetalle(e.getMessage());
+        errorDTO.setCodigoEstado(estado.value());
+        errorDTO.setFecha(LocalDateTime.now());
+
+        return new ResponseEntity<>(errorDTO, estado);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> errorGlobal(Exception e) {
         ErrorDTO errorDTO = new ErrorDTO();
@@ -42,5 +56,21 @@ public class GlobalExceptionHandler {
         errorDTO.setFecha(LocalDateTime.now());
 
         return new ResponseEntity<>(errorDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private HttpStatus obtenerEstado(String mensaje) {
+        if (mensaje == null) {
+            return HttpStatus.BAD_REQUEST;
+        }
+
+        String mensajeMinuscula = mensaje.toLowerCase();
+
+        if (mensajeMinuscula.contains("no se encontro")
+                || mensajeMinuscula.contains("no se encontró")
+                || mensajeMinuscula.contains("no existe")) {
+            return HttpStatus.NOT_FOUND;
+        }
+
+        return HttpStatus.BAD_REQUEST;
     }
 }
