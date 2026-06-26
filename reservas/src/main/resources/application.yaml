@@ -34,3 +34,13 @@ springdoc:
 services:
   herramientas:
     url: http://localhost:8083/api/v1/herramientas
+
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
