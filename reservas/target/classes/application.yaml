@@ -24,13 +24,13 @@ spring:
     enabled: false
 
 springdoc:
-  swagger-ui:
-    path: /doc/swagger-ui/index.html
   api-docs:
+    enabled: true
     path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html
 
 services:
   herramientas:
-    url: http://localhost:8081/api/v1/herramientas
-  usuarios:
-    url: http://localhost:8082/api/v1/usuarios
+    url: http://localhost:8083/api/v1/herramientas
