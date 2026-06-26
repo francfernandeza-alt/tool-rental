@@ -28,9 +28,9 @@ public class Resena {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idResena;
 
-    @NotNull(message = "La puntuación es obligatoria")
-    @Min(value = 1, message = "La puntuación mínima es 1")
-    @Max(value = 5, message = "La puntuación máxima es 5")
+    @NotNull(message = "La puntuacion es obligatoria")
+    @Min(value = 1, message = "La puntuacion minima es 1")
+    @Max(value = 5, message = "La puntuacion maxima es 5")
     @Column(nullable = false)
     private Integer puntuacion;
 
@@ -55,3 +55,5 @@ public class Resena {
     @Column(nullable = false)
     private Integer reservaId;
 }
+
+

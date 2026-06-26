@@ -1,4 +1,4 @@
-package com.tool_rental.reservas.Assembler;
+package com.tool_rental.reservas.assembler;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -26,3 +26,5 @@ public class ReservaModelAssembler implements RepresentationModelAssembler<Reser
         );
     }
 }
+
+

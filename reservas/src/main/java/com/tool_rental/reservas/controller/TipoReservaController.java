@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tool_rental.reservas.Assembler.TipoReservaModelAssembler;
+import com.tool_rental.reservas.assembler.TipoReservaModelAssembler;
 import com.tool_rental.reservas.model.TipoReserva;
 import com.tool_rental.reservas.service.TipoReservaService;
 
@@ -107,3 +107,5 @@ public class TipoReservaController {
         return new ResponseEntity<>("Tipo de reserva eliminado correctamente", HttpStatus.OK);
     }
 }
+
+

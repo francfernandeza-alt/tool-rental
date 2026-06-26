@@ -27,7 +27,7 @@ public class ResenaService {
     private ResenaValidaciones resenaValidaciones;
 
     public List<ResenaDTO> obtenerTodos() {
-        log.info("Obteniendo todas las reseñas registradas");
+        log.info("Obteniendo todas las resenas registradas");
 
         List<Resena> resenas = resenaRepository.findAll();
         List<ResenaDTO> resenasDTO = new ArrayList<>();
@@ -35,22 +35,22 @@ public class ResenaService {
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Total de reseñas encontradas: {}", resenasDTO.size());
+        log.info("Total de resenas encontradas: {}", resenasDTO.size());
         return resenasDTO;
     }
 
     public ResenaDTO buscarPorId(Integer id) {
-        log.info("Buscando reseña con ID {}", id);
+        log.info("Buscando resena con ID {}", id);
 
         Resena resena = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reseña con ID {}", id);
-            return new RuntimeException("No se encontro la reseña con el ID ingresado.");
+            log.error("No se encontro resena con ID {}", id);
+            return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
         return convertirADTO(resena);
     }
 
     public List<ResenaDTO> buscarPorRutUsuario(String rutUsuario) {
-        log.info("Buscando reseñas asociadas al usuario {}", rutUsuario);
+        log.info("Buscando resenas asociadas al usuario {}", rutUsuario);
 
         List<Resena> resenas = resenaRepository.findByRutUsuario(rutUsuario);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
@@ -58,12 +58,12 @@ public class ResenaService {
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} reseñas para el usuario {}", resenasDTO.size(), rutUsuario);
+        log.info("Se encontraron {} resenas para el usuario {}", resenasDTO.size(), rutUsuario);
         return resenasDTO;
     }
 
     public List<ResenaDTO> buscarPorHerramientaId(Integer herramientaId) {
-        log.info("Buscando reseñas asociadas a la herramienta {}", herramientaId);
+        log.info("Buscando resenas asociadas a la herramienta {}", herramientaId);
 
         List<Resena> resenas = resenaRepository.findByHerramientaId(herramientaId);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
@@ -71,12 +71,12 @@ public class ResenaService {
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} reseñas para la herramienta {}", resenasDTO.size(), herramientaId);
+        log.info("Se encontraron {} resenas para la herramienta {}", resenasDTO.size(), herramientaId);
         return resenasDTO;
     }
 
     public List<ResenaDTO> buscarPorReservaId(Integer reservaId) {
-        log.info("Buscando reseñas asociadas a la reserva {}", reservaId);
+        log.info("Buscando resenas asociadas a la reserva {}", reservaId);
 
         List<Resena> resenas = resenaRepository.findByReservaId(reservaId);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
@@ -84,12 +84,12 @@ public class ResenaService {
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} reseñas para la reserva {}", resenasDTO.size(), reservaId);
+        log.info("Se encontraron {} resenas para la reserva {}", resenasDTO.size(), reservaId);
         return resenasDTO;
     }
 
     public ResenaDTO guardar(Resena resena) {
-        log.info("Registrando nueva reseña para reserva {} y herramienta {}",
+        log.info("Registrando nueva resena para reserva {} y herramienta {}",
                 resena.getReservaId(),
                 resena.getHerramientaId());
 
@@ -99,20 +99,20 @@ public class ResenaService {
 
         if (resena.getFechaResena() == null) {
             resena.setFechaResena(LocalDate.now());
-            log.info("Fecha de reseña asignada automaticamente: {}", resena.getFechaResena());
+            log.info("Fecha de resena asignada automaticamente: {}", resena.getFechaResena());
         }
         Resena resenaGuardada = resenaRepository.save(resena);
 
-        log.info("Reseña registrada correctamente con ID {}", resenaGuardada.getIdResena());
+        log.info("Resena registrada correctamente con ID {}", resenaGuardada.getIdResena());
         return convertirADTO(resenaGuardada);
     }
 
     public ResenaDTO actualizar(Integer id, Resena resena) {
-        log.info("Actualizando reseña con ID {}", id);
+        log.info("Actualizando resena con ID {}", id);
 
         Resena resenaExistente = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reseña con ID {}", id);
-            return new RuntimeException("No se encontro la reseña con el ID ingresado.");
+            log.error("No se encontro resena con ID {}", id);
+            return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
 
         if (resena.getPuntuacion() != null) {
@@ -139,21 +139,21 @@ public class ResenaService {
 
         Resena resenaActualizada = resenaRepository.save(resenaExistente);
 
-        log.info("Reseña con ID {} actualizada correctamente", resenaActualizada.getIdResena());
+        log.info("Resena con ID {} actualizada correctamente", resenaActualizada.getIdResena());
         return convertirADTO(resenaActualizada);
     }
 
     public String eliminar(Integer id) {
-        log.info("Intentando eliminar reseña con ID {}", id);
+        log.info("Intentando eliminar resena con ID {}", id);
 
         Resena resena = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reseña con ID {}", id);
-            return new RuntimeException("No se encontro la reseña con el ID ingresado.");
+            log.error("No se encontro resena con ID {}", id);
+            return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
         resenaRepository.delete(resena);
 
-        log.info("Reseña con ID {} eliminada correctamente", id);
-        return "La reseña con ID " + id + " fue eliminada correctamente.";
+        log.info("Resena con ID {} eliminada correctamente", id);
+        return "La resena con ID " + id + " fue eliminada correctamente.";
     }
 
     private ResenaDTO convertirADTO(Resena resena) {
@@ -169,3 +169,5 @@ public class ResenaService {
         return resenaDTO;
     }
 }
+
+
