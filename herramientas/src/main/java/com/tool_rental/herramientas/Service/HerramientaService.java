@@ -1,6 +1,7 @@
 package com.tool_rental.herramientas.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +28,42 @@ public class HerramientaService {
 
     public List<HerramientaDTO> obtenerTodos() {
         log.info("Obteniendo todas las herramientas");
-        List<HerramientaDTO> lista = herramientaRepository.findAll().stream().map(this::convertirADTO).toList();
-        log.info("Se registran {} herramientas.", lista.size());
-        return lista;
+        List<Herramienta> herramientas = herramientaRepository.findAll();
+        return herramientas.stream().map(herramienta -> {
+            HerramientaDTO dto = convertirADTO(herramienta);
+            try {
+                List <ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + herramienta.getIdHerramienta())
+                    .retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
+                if(resenas != null && !resenas.isEmpty()) {
+                    dto.setTotalResenas(resenas.size());
+                    double promedio = resenas.stream().mapToInt(ResenaDTO::getPuntuacion).average().orElse(0.0);
+                    dto.setPromedioEvaluacion(promedio);
+                    dto.setResenas(resenas);
+                } else {
+                    dto.setTotalResenas(0);
+                    dto.setPromedioEvaluacion(0.0);
+                }
+            } catch (Exception e) {
+                log.warn("No se pudieron cargar reseñas para la herramienta ID {}. Motivo: {}",
+                        herramienta.getIdHerramienta(), e.getMessage());
+                dto.setTotalResenas(0);
+                dto.setPromedioEvaluacion(0.0);
+            }
+            return dto;
+        }).toList();
     }
 
     public HerramientaDTO buscarPorId(Integer id) {
         log.info("Buscando herramienta con ID {}", id);
         Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(()->
             new RuntimeException("No se encontró la herramienta con el ID ingresado"));
-        List<ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + id)
+        List<ResenaDTO> resenas = Collections.emptyList();
+        try {
+            resenas = webClientBuilder.build().get().uri("http://localhost:8082/api/v1/resenas/herramientas/" + id)
             .retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
+        } catch (Exception e) {
+            log.error("Fallo inesperado, reseñas no disponible momentaneamente.");
+        }
         HerramientaDTO herramientaDTO = convertirADTO(herramienta);
         if (resenas != null && !resenas.isEmpty()) {
             herramientaDTO.setTotalResenas(resenas.size());
@@ -98,26 +124,7 @@ public class HerramientaService {
         return convertirADTO(actualizada);
     }
 
-    public HerramientaDTO detalleResenaDTO (Integer id)
-    {
-        log.info("Consultando herramienta y datos remotos de reseñas para ID: {}", id);
-        Herramienta herramienta = herramientaRepository.findById(id).orElseThrow(() ->
-            new RuntimeException("Herramienta no encontrada."));
-        List <ResenaDTO> resenas = webClientBuilder.build().get().uri("http://localhost:8081/api/v1/herramientas/" + id).
-            retrieve().bodyToFlux(ResenaDTO.class).collectList().block();
-        HerramientaDTO herramientaDTO = convertirADTO(herramienta);
-        if (!resenas.isEmpty()) {
-            herramientaDTO.setTotalResenas(resenas.size());
-            double promedio = resenas.stream().mapToInt(ResenaDTO :: getPuntuacion).average().orElse(0.0);
-            herramientaDTO.setPromedioEvaluacion(promedio);
-        } else {
-            herramientaDTO.setTotalResenas(0);
-            herramientaDTO.setPromedioEvaluacion(0.0);
-        }
-        return herramientaDTO;
-    }
-
-    public HerramientaDTO convertirADTO (Herramienta herramienta) {
+    private HerramientaDTO convertirADTO (Herramienta herramienta) {
         if (herramienta == null ) {
             return null;
         }
@@ -132,8 +139,9 @@ public class HerramientaService {
         return dto;
     }
 
-    public void validarHerramienta(Herramienta herramienta) {
+    private void validarHerramienta(Herramienta herramienta) {
     if (herramienta.getCantidadDisponible() < 0 ||
+        herramienta.getCantidadTotal() < 0 ||
         herramienta.getCantidadDisponible() > herramienta.getCantidadTotal()) {
             log.error("Validación fallida: stock inválido para herramienta {}. Disponible={}, Total={}",
             herramienta.getNombreHerramienta(),
