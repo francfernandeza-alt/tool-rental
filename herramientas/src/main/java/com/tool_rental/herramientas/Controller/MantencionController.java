@@ -2,7 +2,6 @@ package com.tool_rental.herramientas.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -34,11 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "Gestión de Mantenciones", description = "Operaciones para registrar y consultar mantenimientos de herramientas.")
 
 public class MantencionController {
-    @Autowired
-    public MantencionService mantencionService;
+    public final MantencionService mantencionService;
 
-    @Autowired
-    private MantencionModelAssembler assembler;
+    private final MantencionModelAssembler assembler;
+
+    MantencionController(MantencionService mantencionService, MantencionModelAssembler assembler) {
+        this.mantencionService = mantencionService;
+        this.assembler = assembler;
+    }
 
     @GetMapping
     @Operation(summary = "Listar mantenciones", description = "Retorna el historial completo de mantenciones en formato DTO.")

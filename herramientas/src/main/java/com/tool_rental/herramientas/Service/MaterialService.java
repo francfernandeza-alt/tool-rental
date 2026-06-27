@@ -2,7 +2,6 @@ package com.tool_rental.herramientas.Service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tool_rental.herramientas.DTO.MaterialDTO;
@@ -16,8 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class MaterialService {
-    @Autowired
-    private MaterialRepository materialRepository;
+    private final MaterialRepository materialRepository;
+
+    MaterialService(MaterialRepository materialRepository) {
+        this.materialRepository = materialRepository;
+    }
 
     public List<MaterialDTO> obtenerTodos() {
         log.info("Obteniendo todos los materiales");

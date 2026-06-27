@@ -1,7 +1,6 @@
 package com.tool_rental.herramientas.Service;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.tool_rental.herramientas.DTO.TipoHerramientaDTO;
 import com.tool_rental.herramientas.Model.TipoHerramienta;
@@ -14,8 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class TipoHerramientaService {
-    @Autowired
-    private TipoHerramientaRepository tipoHerramientaRepository;
+    private final TipoHerramientaRepository tipoHerramientaRepository;
+
+    TipoHerramientaService(TipoHerramientaRepository tipoHerramientaRepository) {
+        this.tipoHerramientaRepository = tipoHerramientaRepository;
+    }
 
     public List<TipoHerramientaDTO> findAll() {
         log.info("Obteniendo todos los tipos de herramienta");

@@ -3,7 +3,6 @@ package com.tool_rental.herramientas.Service;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tool_rental.herramientas.DTO.MantencionDTO;
@@ -17,8 +16,11 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class MantencionService {
-    @Autowired
-    private MantencionRepository mantencionRepository;
+    private final MantencionRepository mantencionRepository;
+
+    MantencionService(MantencionRepository mantencionRepository) {
+        this.mantencionRepository = mantencionRepository;
+    }
 
     public List<MantencionDTO> findAll() {
         log.info("Obteniendo todas las mantenciones");
