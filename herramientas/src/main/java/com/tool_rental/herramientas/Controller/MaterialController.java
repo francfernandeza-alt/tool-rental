@@ -2,7 +2,6 @@ package com.tool_rental.herramientas.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -33,11 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Tag(name = "Materiales", description = "Endpoints para la gestión de materiales asociados a herramientas.")
 public class MaterialController {
-    @Autowired
-    private MaterialService materialService;
+    private final MaterialService materialService;
 
-    @Autowired
-    private MaterialModelAssembler assembler;
+    private final MaterialModelAssembler assembler;
+
+    MaterialController(MaterialService materialService, MaterialModelAssembler assembler) {
+        this.materialService = materialService;
+        this.assembler = assembler;
+    }
 
     @GetMapping
     @Operation(summary = "Listar materiales", description = "Retorna todos los materiales registrados en formato DTO.")

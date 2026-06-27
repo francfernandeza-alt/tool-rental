@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,11 +19,14 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Slf4j
 public class HerramientaService {
-    @Autowired
-    public HerramientaRepository herramientaRepository;
+    public final HerramientaRepository herramientaRepository;
 
-    @Autowired
-    private WebClient.Builder webClientBuilder;
+    private final WebClient.Builder webClientBuilder;
+
+    HerramientaService(HerramientaRepository herramientaRepository, WebClient.Builder webClientBuilder) {
+        this.herramientaRepository = herramientaRepository;
+        this.webClientBuilder = webClientBuilder;
+    }
 
     public List<HerramientaDTO> obtenerTodos() {
         log.info("Obteniendo todas las herramientas");

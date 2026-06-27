@@ -2,7 +2,6 @@ package com.tool_rental.herramientas.Controller;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -33,11 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Tag(name = "Gestión de Marcas", description = "Endpoints para administrar las marcas de las herramientas.")
 public class MarcaController {
-    @Autowired
-    private MarcaService marcaService;
+    private final MarcaService marcaService;
 
-    @Autowired
-    private MarcaModelAssembler assembler;
+    private final MarcaModelAssembler assembler;
+
+    MarcaController(MarcaService marcaService, MarcaModelAssembler assembler) {
+        this.marcaService = marcaService;
+        this.assembler = assembler;
+    }
 
     @GetMapping
     @Operation(summary = "Listar marcas", description = "Retorna el listado completo de marcas registradas en formato DTO.")
