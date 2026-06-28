@@ -1,3 +1,21 @@
+server:
+  port: 0
+  
+springdoc:
+  api-docs:
+    enabled: true
+    path: /herramientas/api-docs
+  swagger-ui:
+    enabled: true
+    path: /doc/swagger-ui.html
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
 spring:
   application:
     name: herramientas
@@ -20,20 +38,50 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
-server:
-  port: 0
-  
-springdoc:
-  api-docs:
-    enabled: true
-    path: /herramientas/api-docs
-  swagger-ui:
-    enabled: true
-    path: /doc/swagger-ui.html
+  profiles:
+    active: dev
 
-eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka/
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_dev?createDatabaseIfNotExist=true
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_test?createDatabaseIfNotExist=true
+    username: root
+    password: ""
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_prod?createDatabaseIfNotExist=true
+    username: root
+    password: "TU_PASSWORD_SEGURO"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
