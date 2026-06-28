@@ -18,7 +18,7 @@ CREATE TABLE material(
     descripcion_material VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE tipo_herramienta(
+CREATE TABLE tipoherramienta(
     id_tipo_herramienta INT AUTO_INCREMENT PRIMARY KEY,
     nombre_tipo_herramienta VARCHAR(100) NOT NULL,
     descripcion_tipo_herramienta VARCHAR(255) NOT NULL
@@ -52,7 +52,7 @@ CREATE TABLE materiales (
     CONSTRAINT fk_material FOREIGN KEY (id_material) REFERENCES material(id_material)
 );
 
-CREATE TABLE tipos_herramientas (
+CREATE TABLE tiposherramientas (
     id_tipos_herramientas INT AUTO_INCREMENT PRIMARY KEY,
     id_herramienta INT NOT NULL,
     CONSTRAINT fk_herramienta FOREIGN KEY (id_herramienta) REFERENCES herramienta(id_herramienta),

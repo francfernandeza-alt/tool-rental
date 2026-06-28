@@ -28,7 +28,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("api/v1/herramientas")
+@RequestMapping("/api/v1/herramientas")
 @Slf4j
 @Tag(name = "Herramientas", description = "Endpoints para la gestión del inventario y stock de herramientas.")
 public class HerramientaController {

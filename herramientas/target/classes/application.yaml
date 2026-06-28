@@ -3,25 +3,30 @@ spring:
     name: herramientas
 
   datasource:
-    url: jdbc:mysql://localhost:3306/bd_multiherramienta_vm
+    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_vm?createDatabaseIfNotExist=true
     username: root
     password: ""
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
 server:
-  port: 8083
+  port: 0
   
 springdoc:
   api-docs:
     enabled: true
+    path: /herramientas/api-docs
   swagger-ui:
     enabled: true
     path: /doc/swagger-ui.html
