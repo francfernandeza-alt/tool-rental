@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: api-gateway
@@ -7,11 +10,13 @@ spring:
         - id: herramientas
           uri: lb://herramientas
           predicates:
-            - Path=/api/v1/herramientas/**
+            - Path=/api/v1/herramientas/**, /herramientas/api-docs
         - id: reservas-service
           uri: lb://reservas-service
           predicates:
-            - Path=/api/v1/resenas/**
+            - Path=/api/v1/reservas/**, /reservas/api-docs
+          filters:
+            - RewritePath=/reservas/(?<path>.*), /${path}
         - id: usuario-service
           uri: lb://usuario-service
           predicates:
@@ -21,3 +26,16 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+springdoc:
+  swagger-ui:
+    path: /doc/swagger-ui.html
+    urls:
+      - name: Microservicio Herramientas
+        url: /herramientas/api-docs
+      - name: Microservicio Reservas
+        url: /reservas/api-docs
+      - name: Microservicio Usuarios
+        url: /usuarios/api-docs
+  docs:
+    enabled: true
