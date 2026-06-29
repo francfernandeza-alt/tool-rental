@@ -1,4 +1,4 @@
-package com.toolrental.usuario.Dto;
+package com.toolrental.usuario.dto;
 import lombok.Data;
 
 @Data

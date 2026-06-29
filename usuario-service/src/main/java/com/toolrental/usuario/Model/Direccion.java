@@ -1,4 +1,4 @@
-package com.toolrental.usuario.Model;
+package com.toolrental.usuario.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +44,7 @@ public class Direccion {
     @NotNull(message = "El usuario es obligatorio")
     @ManyToOne
     @JoinColumn(name = "rutUsuario", nullable = false)
-    private Usuario usuario;
+    private Usuario111 usuario;
 }
 
 

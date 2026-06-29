@@ -1,88 +1,77 @@
-package com.toolrental.usuario.Controller;
+package com.toolrental.usuario.controller;
+
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.multiherramienta.multiherramienta.DTO.DireccionDTO;
-import com.multiherramienta.multiherramienta.Model.Direccion;
-import com.multiherramienta.multiherramienta.Services.DireccionService;
+import jakarta.validation.Valid;
 
-
-
+import com.toolrental.usuario.dto.DireccionDTO;
+import com.toolrental.usuario.model.Direccion;
+import com.toolrental.usuario.service.DireccionService;
 
 @RestController
 @RequestMapping("/api/v1/direccion")
 public class DireccionController {
- @Autowired
+
+    private static final Logger logger = LoggerFactory.getLogger(DireccionController.class);
+
+    @Autowired
     private DireccionService direccionService;
 
     @GetMapping
-    public ResponseEntity<List<DireccionDTO>> todosLasDirecciones() {
-        List<DireccionDTO> direccion = direccionService.obtenerTodas();
-        if (direccion.isEmpty()) {
+    public ResponseEntity<List<DireccionDTO>> obtenerTodas() {
+
+        logger.info("Solicitando listado de direcciones");
+
+        List<DireccionDTO> lista = direccionService.obtenerTodas();
+
+        if (lista.isEmpty()) {
+            logger.warn("No existen direcciones registradas");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(direccion, HttpStatus.OK);
+
+        logger.info("Se encontraron {} direcciones", lista.size());
+
+        return new ResponseEntity<>(lista, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<DireccionDTO> buscarPorId(@PathVariable Integer id) {
-        try {
-            DireccionDTO direccion = direccionService.buscarPorId(id);
-            return new ResponseEntity<>(direccion, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+
+        logger.info("Buscando dirección con id {}", id);
+
+        return new ResponseEntity<>(direccionService.buscarPorId(id), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<Direccion> agregarDireccion(@RequestBody Direccion direccion) {
-        try {
-            Direccion guardada = direccionService.guardaDireccion(direccion);
-            return new ResponseEntity<>(guardada, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
+    public ResponseEntity<Direccion> guardar(@Valid @RequestBody Direccion direccion) {
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Direccion> editarDireccion(@PathVariable Integer id, @RequestBody Direccion direccion) {
-        try {
-            Direccion editada = direccionService.guardaDireccion(direccion);
-            return new ResponseEntity<>(editada, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        logger.info("Registrando nueva dirección");
+
+        return new ResponseEntity<>(direccionService.guardar(direccion), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Direccion> actualizarDireccion(@PathVariable Integer id, @RequestBody Direccion direccion){
-        try{
-            Direccion nuevaDireccion = direccionService.actualizarDireccion(id, direccion);
-            return new ResponseEntity<>(nuevaDireccion, HttpStatus.OK);
-        }catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Direccion> actualizar(
+            @PathVariable Integer id,
+            @RequestBody Direccion direccion) {
+
+        logger.info("Actualizando dirección con id {}", id);
+
+        return new ResponseEntity<>(direccionService.actualizar(id, direccion), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarDireccion(@PathVariable Integer id) {
-        String resultado = direccionService.eliminar(id);
-        if (resultado.contains("eliminada")) {
-            return new ResponseEntity<>(resultado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(resultado, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<String> eliminar(@PathVariable Integer id) {
+
+        logger.info("Eliminando dirección con id {}", id);
+
+        return new ResponseEntity<>(direccionService.eliminar(id), HttpStatus.OK);
     }
 }

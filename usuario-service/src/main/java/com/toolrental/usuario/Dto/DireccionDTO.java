@@ -1,5 +1,6 @@
-package com.toolrental.usuario.Dto;
-@data
+package com.toolrental.usuario.dto;
+import lombok.Data;
+@Data
 public class DireccionDTO {
 private Integer idDireccion;
     private String calle;

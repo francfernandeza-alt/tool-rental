@@ -1,4 +1,4 @@
-package com.toolrental.usuario.Model;
+package com.toolrental.usuario.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
