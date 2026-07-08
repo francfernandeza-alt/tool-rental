@@ -22,9 +22,7 @@ public class ResenaModelAssembler implements RepresentationModelAssembler<Resena
                 linkTo(methodOn(ResenaController.class).listarResenas()).withRel("resenas"),
                 linkTo(methodOn(ResenaController.class).guardarResena(null)).withRel("guardar"),
                 linkTo(methodOn(ResenaController.class).actualizarResena(id, null)).withRel("actualizar"),
-                linkTo(methodOn(ResenaController.class).eliminarResena(id)).withRel("eliminar")
+                linkTo(methodOn(ResenaController.class).eliminarResena(id)).withRel("desactivar")
         );
     }
 }
-
-

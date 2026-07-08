@@ -28,43 +28,43 @@ public class ReservaService {
     private ReservaValidaciones reservaValidaciones;
 
     public List<ReservaDTO> obtenerTodos() {
-        log.info("Obteniendo todas las reservas registradas");
+        log.info("Obteniendo todas las reservas activas");
 
-        List<Reserva> reservas = reservaRepository.findAll();
+        List<Reserva> reservas = reservaRepository.findByActivoTrue();
         List<ReservaDTO> reservasDTO = new ArrayList<>();
 
         for (Reserva reserva : reservas) {
             reservasDTO.add(convertirADTO(reserva));
         }
-        log.info("Total de reservas encontradas: {}", reservasDTO.size());
+        log.info("Total de reservas activas encontradas: {}", reservasDTO.size());
         return reservasDTO;
     }
 
     public ReservaDTO buscarPorId(Integer id) {
-        log.info("Buscando reserva con ID {}", id);
+        log.info("Buscando reserva activa con ID {}", id);
 
-        Reserva reserva = reservaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reserva con ID {}", id);
+        Reserva reserva = reservaRepository.findByIdReservaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro reserva activa con ID {}", id);
             return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
         return convertirADTO(reserva);
     }
 
     public Reserva buscarEntidadPorId(Integer id) {
-        return reservaRepository.findById(id).orElse(null);
+        return reservaRepository.findByIdReservaAndActivoTrue(id).orElse(null);
     }
 
     public List<ReservaDTO> buscarPorRutUsuario(String rutUsuario) {
-        log.info("Buscando reservas asociadas al usuario {}", rutUsuario);
+        log.info("Buscando reservas activas asociadas al usuario {}", rutUsuario);
 
-        List<Reserva> reservas = reservaRepository.findByRutUsuario(rutUsuario);
+        List<Reserva> reservas = reservaRepository.findByRutUsuarioAndActivoTrue(rutUsuario);
         List<ReservaDTO> reservasDTO = new ArrayList<>();
 
         for (Reserva reserva : reservas) {
             reservasDTO.add(convertirADTO(reserva));
         }
 
-        log.info("Se encontraron {} reservas para el usuario {}", reservasDTO.size(), rutUsuario);
+        log.info("Se encontraron {} reservas activas para el usuario {}", reservasDTO.size(), rutUsuario);
         return reservasDTO;
     }
 
@@ -75,6 +75,10 @@ public class ReservaService {
         reservaValidaciones.validarTipoReserva(reserva.getTipoReservaId());
         reservaValidaciones.validarMetodoPago(reserva.getMetodoPagoId());
 
+        if (reserva.getActivo() == null) {
+            reserva.setActivo(true);
+        }
+
         Reserva reservaGuardada = reservaRepository.save(reserva);
 
         log.info("Reserva registrada correctamente con ID {}", reservaGuardada.getIdReserva());
@@ -84,10 +88,11 @@ public class ReservaService {
     public ReservaDTO actualizar(Integer id, Reserva reserva) {
         log.info("Actualizando reserva con ID {}", id);
 
-        Reserva reservaExistente = reservaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reserva con ID {}", id);
+        Reserva reservaExistente = reservaRepository.findByIdReservaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro reserva activa con ID {}", id);
             return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
+
         if (reserva.getFechaInicio() != null) {
             reservaExistente.setFechaInicio(reserva.getFechaInicio());
         }
@@ -116,18 +121,25 @@ public class ReservaService {
         return convertirADTO(reservaActualizada);
     }
 
-    public String eliminar(Integer id) {
-        log.info("Intentando eliminar reserva con ID {}", id);
+    public String desactivar(Integer id) {
+        log.info("Intentando desactivar reserva con ID {}", id);
 
-        Reserva reserva = reservaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro reserva con ID {}", id);
+        Reserva reserva = reservaRepository.findByIdReservaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro reserva activa con ID {}", id);
             return new RuntimeException("No se encontro la reserva con el ID ingresado.");
         });
 
-        reservaRepository.delete(reserva);
+        reserva.setActivo(false);
+        reserva.setEstadoReserva("Inactiva");
+        reservaRepository.save(reserva);
 
-        log.info("Reserva con ID {} eliminada correctamente", id);
-        return "La reserva con ID " + id + " fue eliminada correctamente.";
+        log.info("Reserva con ID {} desactivada correctamente", id);
+        return "La reserva con ID " + id + " fue desactivada correctamente.";
+    }
+
+
+    public String eliminar(Integer id) {
+        return desactivar(id);
     }
 
     private ReservaDTO convertirADTO(Reserva reserva) {
@@ -140,6 +152,7 @@ public class ReservaService {
         reservaDTO.setRutUsuario(reserva.getRutUsuario());
         reservaDTO.setTipoReservaId(reserva.getTipoReservaId());
         reservaDTO.setMetodoPagoId(reserva.getMetodoPagoId());
+        reservaDTO.setActivo(reserva.getActivo());
 
         TipoReserva tipoReserva = reservaValidaciones.validarTipoReserva(reserva.getTipoReservaId());
         MetodoPago metodoPago = reservaValidaciones.validarMetodoPago(reserva.getMetodoPagoId());
@@ -150,5 +163,3 @@ public class ReservaService {
         return reservaDTO;
     }
 }
-
-

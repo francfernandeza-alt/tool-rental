@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -121,7 +121,7 @@ public class ResenaController {
     }
 
     @Operation(summary = "Actualizar resena", description = "Actualiza una resena existente")
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EntityModel<ResenaDTO>> actualizarResena(@PathVariable Integer id, @RequestBody Resena resena) {
         log.info("Solicitud recibida: actualizar resena con ID {}", id);
         ResenaDTO resenaActualizada = resenaService.actualizar(id, resena);
@@ -130,15 +130,13 @@ public class ResenaController {
         return new ResponseEntity<>(assembler.toModel(resenaActualizada), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar resena", description = "Elimina una resena mediante su identificador")
+    @Operation(summary = "Desactivar resena", description = "Desactiva una resena mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarResena(@PathVariable Integer id) {
-        log.info("Solicitud recibida: eliminar resena con ID {}", id);
-        String mensaje = resenaService.eliminar(id);
+        log.info("Solicitud recibida: desactivar resena con ID {}", id);
+        String mensaje = resenaService.desactivar(id);
 
-        log.info("Resena con ID {} eliminada correctamente", id);
+        log.info("Resena con ID {} desactivada correctamente", id);
         return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
-
-

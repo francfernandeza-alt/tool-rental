@@ -22,7 +22,7 @@ public class ReservaModelAssembler implements RepresentationModelAssembler<Reser
                 linkTo(methodOn(ReservaController.class).listarReservas()).withRel("reservas"),
                 linkTo(methodOn(ReservaController.class).guardarReserva(null)).withRel("guardar"),
                 linkTo(methodOn(ReservaController.class).actualizarReserva(id, null)).withRel("actualizar"),
-                linkTo(methodOn(ReservaController.class).eliminarReserva(id)).withRel("eliminar")
+                linkTo(methodOn(ReservaController.class).eliminarReserva(id)).withRel("desactivar")
         );
     }
 }

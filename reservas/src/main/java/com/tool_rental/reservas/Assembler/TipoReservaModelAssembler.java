@@ -22,7 +22,7 @@ public class TipoReservaModelAssembler implements RepresentationModelAssembler<T
                 linkTo(methodOn(TipoReservaController.class).listarTiposReserva()).withRel("tipos-reserva"),
                 linkTo(methodOn(TipoReservaController.class).guardarTipoReserva(null)).withRel("guardar"),
                 linkTo(methodOn(TipoReservaController.class).actualizarTipoReserva(id, null)).withRel("actualizar"),
-                linkTo(methodOn(TipoReservaController.class).eliminarTipoReserva(id)).withRel("eliminar")
+                linkTo(methodOn(TipoReservaController.class).eliminarTipoReserva(id)).withRel("desactivar")
         );
     }
 }

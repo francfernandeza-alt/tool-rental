@@ -20,17 +20,17 @@ public class MetodoPagoService {
     private MetodoPagoRepository metodoPagoRepository;
 
     public List<MetodoPago> obtenerTodos() {
-        log.info("Obteniendo todos los metodos de pago");
-        return metodoPagoRepository.findAll();
+        log.info("Obteniendo todos los metodos de pago activos");
+        return metodoPagoRepository.findByActivoTrue();
     }
 
     public MetodoPago buscarPorId(Integer id) {
-        log.info("Buscando metodo de pago con ID {}", id);
+        log.info("Buscando metodo de pago activo con ID {}", id);
 
-        MetodoPago metodoPago = metodoPagoRepository.findById(id).orElse(null);
+        MetodoPago metodoPago = metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(id).orElse(null);
 
         if (metodoPago == null) {
-            log.warn("No se encontro metodo de pago con ID {}", id);
+            log.warn("No se encontro metodo de pago activo con ID {}", id);
         } else {
             log.info("Metodo de pago con ID {} encontrado correctamente", id);
         }
@@ -40,6 +40,10 @@ public class MetodoPagoService {
 
     public MetodoPago guardar(MetodoPago metodoPago) {
         log.info("Guardando metodo de pago: {}", metodoPago.getNombreMetodoPago());
+
+        if (metodoPago.getActivo() == null) {
+            metodoPago.setActivo(true);
+        }
 
         MetodoPago metodoPagoGuardado = metodoPagoRepository.save(metodoPago);
 
@@ -53,10 +57,13 @@ public class MetodoPagoService {
         MetodoPago metodoPagoExistente = buscarPorId(id);
 
         if (metodoPagoExistente == null) {
-            log.warn("No se pudo actualizar. Metodo de pago con ID {} no existe", id);
+            log.warn("No se pudo actualizar. Metodo de pago con ID {} no existe o esta inactivo", id);
             return null;
         }
-        metodoPagoExistente.setNombreMetodoPago(metodoPago.getNombreMetodoPago());
+
+        if (metodoPago.getNombreMetodoPago() != null) {
+            metodoPagoExistente.setNombreMetodoPago(metodoPago.getNombreMetodoPago());
+        }
 
         MetodoPago metodoPagoActualizado = metodoPagoRepository.save(metodoPagoExistente);
 
@@ -64,20 +71,25 @@ public class MetodoPagoService {
         return metodoPagoActualizado;
     }
 
-    public boolean eliminar(Integer id) {
-        log.info("Eliminando metodo de pago con ID {}", id);
+    public boolean desactivar(Integer id) {
+        log.info("Desactivando metodo de pago con ID {}", id);
 
         MetodoPago metodoPago = buscarPorId(id);
 
         if (metodoPago == null) {
-            log.warn("No se pudo eliminar. Metodo de pago con ID {} no existe", id);
+            log.warn("No se pudo desactivar. Metodo de pago con ID {} no existe o ya esta inactivo", id);
             return false;
         }
-        metodoPagoRepository.delete(metodoPago);
 
-        log.info("Metodo de pago con ID {} eliminado correctamente", id);
+        metodoPago.setActivo(false);
+        metodoPagoRepository.save(metodoPago);
+
+        log.info("Metodo de pago con ID {} desactivado correctamente", id);
         return true;
     }
+
+    public boolean eliminar(Integer id) {
+        return desactivar(id);
+    }
+
 }
-
-

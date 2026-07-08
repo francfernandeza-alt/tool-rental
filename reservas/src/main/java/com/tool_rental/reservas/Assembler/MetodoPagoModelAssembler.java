@@ -22,7 +22,7 @@ public class MetodoPagoModelAssembler implements RepresentationModelAssembler<Me
                 linkTo(methodOn(MetodoPagoController.class).listarMetodosPago()).withRel("metodos-pago"),
                 linkTo(methodOn(MetodoPagoController.class).guardarMetodoPago(null)).withRel("guardar"),
                 linkTo(methodOn(MetodoPagoController.class).actualizarMetodoPago(id, null)).withRel("actualizar"),
-                linkTo(methodOn(MetodoPagoController.class).eliminarMetodoPago(id)).withRel("eliminar")
+                linkTo(methodOn(MetodoPagoController.class).eliminarMetodoPago(id)).withRel("desactivar")
         );
     }
 }

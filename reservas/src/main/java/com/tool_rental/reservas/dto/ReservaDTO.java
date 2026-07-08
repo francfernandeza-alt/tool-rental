@@ -18,6 +18,8 @@ public class ReservaDTO {
 
     private Integer metodoPagoId;
     private String nombreMetodoPago;
+
+    private Boolean activo;
 }
 
 
