@@ -51,5 +51,7 @@ public class Reserva {
     @NotNull(message = "El metodo de pago es obligatorio")
     @Column(nullable = false)
     private Integer metodoPagoId;
-}
 
+    @Column(nullable = false)
+    private Boolean activo = true;
+}

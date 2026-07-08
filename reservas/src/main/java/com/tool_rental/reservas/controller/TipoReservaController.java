@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +78,7 @@ public class TipoReservaController {
     }
 
     @Operation(summary = "Actualizar tipo de reserva")
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EntityModel<TipoReserva>> actualizarTipoReserva(@PathVariable Integer id, @Valid @RequestBody TipoReserva tipoReserva) {
         log.info("Solicitud recibida: actualizar tipo de reserva con ID {}", id);
         TipoReserva tipoReservaActualizado = tipoReservaService.actualizar(id, tipoReserva);
@@ -92,20 +92,18 @@ public class TipoReservaController {
         return new ResponseEntity<>(assembler.toModel(tipoReservaActualizado), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar tipo de reserva")
+    @Operation(summary = "Desactivar tipo de reserva")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarTipoReserva(@PathVariable Integer id) {
-        log.info("Solicitud recibida: eliminar tipo de reserva con ID {}", id);
-        boolean eliminado = tipoReservaService.eliminar(id);
+        log.info("Solicitud recibida: desactivar tipo de reserva con ID {}", id);
+        boolean eliminado = tipoReservaService.desactivar(id);
 
         if (!eliminado) {
-            log.warn("No se pudo eliminar. Tipo de reserva con ID {} no existe", id);
+            log.warn("No se pudo desactivar. Tipo de reserva con ID {} no existe", id);
             return new ResponseEntity<>("Tipo de reserva no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        log.info("Tipo de reserva con ID {} eliminado correctamente", id);
-        return new ResponseEntity<>("Tipo de reserva eliminado correctamente", HttpStatus.OK);
+        log.info("Tipo de reserva con ID {} desactivado correctamente", id);
+        return new ResponseEntity<>("Tipo de reserva desactivado correctamente", HttpStatus.OK);
     }
 }
-
-

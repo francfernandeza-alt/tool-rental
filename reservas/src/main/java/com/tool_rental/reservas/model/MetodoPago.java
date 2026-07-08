@@ -27,6 +27,7 @@ public class MetodoPago {
     @Size(min = 3, max = 100, message = "El nombre del metodo de pago debe tener entre 3 y 100 caracteres")
     @Column(nullable = false, length = 100)
     private String nombreMetodoPago;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 }
-
-

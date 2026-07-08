@@ -64,7 +64,7 @@ public class ReservaServiceTest {
     @Test
     void obtenerTodosDebeRetornarListaReservasDTO() {
         // Given
-        when(reservaRepository.findAll()).thenReturn(List.of(reserva));
+        when(reservaRepository.findByActivoTrue()).thenReturn(List.of(reserva));
         when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
         when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
 
@@ -78,13 +78,13 @@ public class ReservaServiceTest {
         assertEquals("Retiro en tienda", resultado.get(0).getNombreTipoReserva());
         assertEquals("Transferencia", resultado.get(0).getNombreMetodoPago());
 
-        verify(reservaRepository).findAll();
+        verify(reservaRepository).findByActivoTrue();
     }
 
     @Test
     void buscarPorIdDebeRetornarReservaDTOCuandoExiste() {
         // Given
-        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+        when(reservaRepository.findByIdReservaAndActivoTrue(1)).thenReturn(Optional.of(reserva));
         when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
         when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
 
@@ -98,24 +98,24 @@ public class ReservaServiceTest {
         assertEquals("Retiro en tienda", resultado.getNombreTipoReserva());
         assertEquals("Transferencia", resultado.getNombreMetodoPago());
 
-        verify(reservaRepository).findById(1);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(1);
     }
 
     @Test
     void buscarPorIdDebeLanzarErrorCuandoNoExiste() {
         // Given
-        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(reservaRepository.findByIdReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> reservaService.buscarPorId(99));
 
-        verify(reservaRepository).findById(99);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(99);
     }
 
     @Test
     void buscarEntidadPorIdDebeRetornarReservaCuandoExiste() {
         // Given
-        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+        when(reservaRepository.findByIdReservaAndActivoTrue(1)).thenReturn(Optional.of(reserva));
 
         // When
         Reserva resultado = reservaService.buscarEntidadPorId(1);
@@ -124,13 +124,13 @@ public class ReservaServiceTest {
         assertNotNull(resultado);
         assertEquals(1, resultado.getIdReserva());
 
-        verify(reservaRepository).findById(1);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(1);
     }
 
     @Test
     void buscarEntidadPorIdDebeRetornarNullCuandoNoExiste() {
         // Given
-        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(reservaRepository.findByIdReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         Reserva resultado = reservaService.buscarEntidadPorId(99);
@@ -138,13 +138,13 @@ public class ReservaServiceTest {
         // Then
         assertNull(resultado);
 
-        verify(reservaRepository).findById(99);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(99);
     }
 
     @Test
     void buscarPorRutUsuarioDebeRetornarReservasDelUsuario() {
         // Given
-        when(reservaRepository.findByRutUsuario("12345678-9")).thenReturn(List.of(reserva));
+        when(reservaRepository.findByRutUsuarioAndActivoTrue("12345678-9")).thenReturn(List.of(reserva));
         when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
         when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
 
@@ -155,7 +155,7 @@ public class ReservaServiceTest {
         assertEquals(1, resultado.size());
         assertEquals("12345678-9", resultado.get(0).getRutUsuario());
 
-        verify(reservaRepository).findByRutUsuario("12345678-9");
+        verify(reservaRepository).findByRutUsuarioAndActivoTrue("12345678-9");
     }
 
     @Test
@@ -191,7 +191,7 @@ public class ReservaServiceTest {
         datosActualizados.setTipoReservaId(1);
         datosActualizados.setMetodoPagoId(1);
 
-        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+        when(reservaRepository.findByIdReservaAndActivoTrue(1)).thenReturn(Optional.of(reserva));
 
         when(reservaValidaciones.validarTipoReserva(1)).thenReturn(tipoReserva);
         when(reservaValidaciones.validarMetodoPago(1)).thenReturn(metodoPago);
@@ -208,7 +208,7 @@ public class ReservaServiceTest {
         assertEquals(LocalDate.of(2026, 6, 21), resultado.getFechaInicio());
         assertEquals(LocalDate.of(2026, 6, 23), resultado.getFechaFin());
 
-        verify(reservaRepository).findById(1);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(1);
         verify(reservaRepository).save(reserva);
     }
 
@@ -218,39 +218,37 @@ public class ReservaServiceTest {
         Reserva datosActualizados = new Reserva();
         datosActualizados.setEstadoReserva("Finalizada");
 
-        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(reservaRepository.findByIdReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> reservaService.actualizar(99, datosActualizados));
 
-        verify(reservaRepository).findById(99);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(99);
     }
 
     @Test
     void eliminarDebeRetornarMensajeCuandoExiste() {
         // Given
-        when(reservaRepository.findById(1)).thenReturn(Optional.of(reserva));
+        when(reservaRepository.findByIdReservaAndActivoTrue(1)).thenReturn(Optional.of(reserva));
 
         // When
         String resultado = reservaService.eliminar(1);
 
         // Then
-        assertEquals("La reserva con ID 1 fue eliminada correctamente.", resultado);
+        assertEquals("La reserva con ID 1 fue desactivada correctamente.", resultado);
 
-        verify(reservaRepository).findById(1);
-        verify(reservaRepository).delete(reserva);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(1);
+        verify(reservaRepository).save(reserva);
     }
 
     @Test
     void eliminarDebeLanzarErrorCuandoNoExiste() {
         // Given
-        when(reservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(reservaRepository.findByIdReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> reservaService.eliminar(99));
 
-        verify(reservaRepository).findById(99);
+        verify(reservaRepository).findByIdReservaAndActivoTrue(99);
     }
 }
-
-

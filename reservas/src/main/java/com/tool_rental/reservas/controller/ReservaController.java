@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -89,7 +89,7 @@ public class ReservaController {
     }
 
     @Operation(summary = "Actualizar reserva", description = "Actualiza los datos de una reserva existente")
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EntityModel<ReservaDTO>> actualizarReserva(@PathVariable Integer id, @RequestBody Reserva reserva) {
         log.info("Solicitud recibida: actualizar reserva con ID {}", id);
         ReservaDTO reservaActualizada = reservaService.actualizar(id, reserva);
@@ -98,15 +98,13 @@ public class ReservaController {
         return new ResponseEntity<>(assembler.toModel(reservaActualizada), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar reserva", description = "Elimina una reserva existente mediante su identificador")
+    @Operation(summary = "Desactivar reserva", description = "Desactiva una reserva existente mediante su identificador")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarReserva(@PathVariable Integer id) {
-        log.info("Solicitud recibida: eliminar reserva con ID {}", id);
-        String mensaje = reservaService.eliminar(id);
+        log.info("Solicitud recibida: desactivar reserva con ID {}", id);
+        String mensaje = reservaService.desactivar(id);
 
-        log.info("Reserva con ID {} eliminada correctamente", id);
+        log.info("Reserva con ID {} desactivada correctamente", id);
         return new ResponseEntity<>(mensaje, HttpStatus.OK);
     }
 }
-
-

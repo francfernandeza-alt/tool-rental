@@ -9,9 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +78,7 @@ public class MetodoPagoController {
     }
 
     @Operation(summary = "Actualizar metodo de pago")
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<EntityModel<MetodoPago>> actualizarMetodoPago(@PathVariable Integer id, @Valid @RequestBody MetodoPago metodoPago) {
         log.info("Solicitud recibida: actualizar metodo de pago con ID {}", id);
         MetodoPago metodoPagoActualizado = metodoPagoService.actualizar(id, metodoPago);
@@ -92,20 +92,18 @@ public class MetodoPagoController {
         return new ResponseEntity<>(assembler.toModel(metodoPagoActualizado), HttpStatus.OK);
     }
 
-    @Operation(summary = "Eliminar metodo de pago")
+    @Operation(summary = "Desactivar metodo de pago")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminarMetodoPago(@PathVariable Integer id) {
-        log.info("Solicitud recibida: eliminar metodo de pago con ID {}", id);
-        boolean eliminado = metodoPagoService.eliminar(id);
+        log.info("Solicitud recibida: desactivar metodo de pago con ID {}", id);
+        boolean eliminado = metodoPagoService.desactivar(id);
 
         if (!eliminado) {
-            log.warn("No se pudo eliminar. Metodo de pago con ID {} no existe", id);
+            log.warn("No se pudo desactivar. Metodo de pago con ID {} no existe", id);
             return new ResponseEntity<>("Metodo de pago no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        log.info("Metodo de pago con ID {} eliminado correctamente", id);
-        return new ResponseEntity<>("Metodo de pago eliminado correctamente", HttpStatus.OK);
+        log.info("Metodo de pago con ID {} desactivado correctamente", id);
+        return new ResponseEntity<>("Metodo de pago desactivado correctamente", HttpStatus.OK);
     }
 }
-
-

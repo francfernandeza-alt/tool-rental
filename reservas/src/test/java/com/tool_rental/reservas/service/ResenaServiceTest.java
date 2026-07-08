@@ -51,7 +51,7 @@ public class ResenaServiceTest {
     @Test
     void obtenerTodosDebeRetornarListaDeResenas() {
         // Given
-        when(resenaRepository.findAll()).thenReturn(List.of(resena));
+        when(resenaRepository.findByActivoTrue()).thenReturn(List.of(resena));
 
         // When
         List<ResenaDTO> resultado = resenaService.obtenerTodos();
@@ -62,13 +62,13 @@ public class ResenaServiceTest {
         assertEquals("Excelente herramienta", resultado.get(0).getComentario());
         assertEquals(5, resultado.get(0).getPuntuacion());
 
-        verify(resenaRepository).findAll();
+        verify(resenaRepository).findByActivoTrue();
     }
 
     @Test
     void buscarPorIdDebeRetornarResenaExistente() {
         // Given
-        when(resenaRepository.findById(1)).thenReturn(Optional.of(resena));
+        when(resenaRepository.findByIdResenaAndActivoTrue(1)).thenReturn(Optional.of(resena));
 
         // When
         ResenaDTO resultado = resenaService.buscarPorId(1);
@@ -78,24 +78,24 @@ public class ResenaServiceTest {
         assertEquals(1, resultado.getIdResena());
         assertEquals("Excelente herramienta", resultado.getComentario());
 
-        verify(resenaRepository).findById(1);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(1);
     }
 
     @Test
     void buscarPorIdDebeLanzarErrorCuandoNoExiste() {
         // Given
-        when(resenaRepository.findById(99)).thenReturn(Optional.empty());
+        when(resenaRepository.findByIdResenaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> resenaService.buscarPorId(99));
 
-        verify(resenaRepository).findById(99);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(99);
     }
 
     @Test
     void buscarPorRutUsuarioDebeRetornarResenasDelUsuario() {
         // Given
-        when(resenaRepository.findByRutUsuario("12345678-9")).thenReturn(List.of(resena));
+        when(resenaRepository.findByRutUsuarioAndActivoTrue("12345678-9")).thenReturn(List.of(resena));
 
         // When
         List<ResenaDTO> resultado = resenaService.buscarPorRutUsuario("12345678-9");
@@ -104,13 +104,13 @@ public class ResenaServiceTest {
         assertEquals(1, resultado.size());
         assertEquals("12345678-9", resultado.get(0).getRutUsuario());
 
-        verify(resenaRepository).findByRutUsuario("12345678-9");
+        verify(resenaRepository).findByRutUsuarioAndActivoTrue("12345678-9");
     }
 
     @Test
     void buscarPorHerramientaIdDebeRetornarResenasDeHerramienta() {
         // Given
-        when(resenaRepository.findByHerramientaId(1)).thenReturn(List.of(resena));
+        when(resenaRepository.findByHerramientaIdAndActivoTrue(1)).thenReturn(List.of(resena));
 
         // When
         List<ResenaDTO> resultado = resenaService.buscarPorHerramientaId(1);
@@ -119,13 +119,13 @@ public class ResenaServiceTest {
         assertEquals(1, resultado.size());
         assertEquals(1, resultado.get(0).getHerramientaId());
 
-        verify(resenaRepository).findByHerramientaId(1);
+        verify(resenaRepository).findByHerramientaIdAndActivoTrue(1);
     }
 
     @Test
     void buscarPorReservaIdDebeRetornarResenasDeReserva() {
         // Given
-        when(resenaRepository.findByReservaId(1)).thenReturn(List.of(resena));
+        when(resenaRepository.findByReservaIdAndActivoTrue(1)).thenReturn(List.of(resena));
 
         // When
         List<ResenaDTO> resultado = resenaService.buscarPorReservaId(1);
@@ -134,7 +134,7 @@ public class ResenaServiceTest {
         assertEquals(1, resultado.size());
         assertEquals(1, resultado.get(0).getReservaId());
 
-        verify(resenaRepository).findByReservaId(1);
+        verify(resenaRepository).findByReservaIdAndActivoTrue(1);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class ResenaServiceTest {
         datosActualizados.setHerramientaId(1);
         datosActualizados.setReservaId(1);
 
-        when(resenaRepository.findById(1)).thenReturn(Optional.of(resena));
+        when(resenaRepository.findByIdResenaAndActivoTrue(1)).thenReturn(Optional.of(resena));
 
         doNothing().when(resenaValidaciones).validarHerramientaExistente(1);
         doNothing().when(resenaValidaciones).validarReservaExistente(1);
@@ -208,7 +208,7 @@ public class ResenaServiceTest {
         assertEquals(4, resultado.getPuntuacion());
         assertEquals("Buena herramienta", resultado.getComentario());
 
-        verify(resenaRepository).findById(1);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(1);
         verify(resenaRepository).save(resena);
     }
 
@@ -218,38 +218,38 @@ public class ResenaServiceTest {
         Resena datosActualizados = new Resena();
         datosActualizados.setComentario("Comentario actualizado");
 
-        when(resenaRepository.findById(99)).thenReturn(Optional.empty());
+        when(resenaRepository.findByIdResenaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> resenaService.actualizar(99, datosActualizados));
 
-        verify(resenaRepository).findById(99);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(99);
     }
 
     @Test
     void eliminarDebeRetornarMensajeCuandoExiste() {
         // Given
-        when(resenaRepository.findById(1)).thenReturn(Optional.of(resena));
+        when(resenaRepository.findByIdResenaAndActivoTrue(1)).thenReturn(Optional.of(resena));
 
         // When
         String resultado = resenaService.eliminar(1);
 
         // Then
-        assertEquals("La resena con ID 1 fue eliminada correctamente.", resultado);
+        assertEquals("La resena con ID 1 fue desactivada correctamente.", resultado);
 
-        verify(resenaRepository).findById(1);
-        verify(resenaRepository).delete(resena);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(1);
+        verify(resenaRepository).save(resena);
     }
 
     @Test
     void eliminarDebeLanzarErrorCuandoNoExiste() {
         // Given
-        when(resenaRepository.findById(99)).thenReturn(Optional.empty());
+        when(resenaRepository.findByIdResenaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When / Then
         assertThrows(RuntimeException.class, () -> resenaService.eliminar(99));
 
-        verify(resenaRepository).findById(99);
+        verify(resenaRepository).findByIdResenaAndActivoTrue(99);
     }
 }
 
