@@ -1,14 +1,14 @@
 server:
-  port: 0
+  port: ${SERVER_PORT:0}
 
 spring:
   application:
     name: reservas-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/bd_reservas_service?createDatabaseIfNotExist=true
-    username: root
-    password:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bd_reservas_service?createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -33,13 +33,13 @@ springdoc:
 
 services:
   herramientas:
-    url: http://herramientas/api/v1/herramientas
+    url: ${SERVICES_HERRAMIENTAS_URL:http://herramientas/api/v1/herramientas}
 
 eureka:
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
