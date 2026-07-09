@@ -34,7 +34,7 @@ public class Resena {
     @Column(nullable = false)
     private Integer puntuacion;
 
-    @NotBlank(message = "El comentario de la reseña es obligatorio")
+    @NotBlank(message = "El comentario de la resena es obligatorio")
     @Size(min = 3, max = 255, message = "El comentario debe tener entre 3 y 255 caracteres")
     @Column(nullable = false, length = 255)
     private String comentario;
@@ -54,6 +54,7 @@ public class Resena {
     @NotNull(message = "El ID de la reserva es obligatorio")
     @Column(nullable = false)
     private Integer reservaId;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 }
-
-

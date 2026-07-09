@@ -27,6 +27,7 @@ public class TipoReserva {
     @Size(min = 3, max = 100, message = "El nombre del tipo de reserva debe tener entre 3 y 100 caracteres")
     @Column(nullable = false, length = 100)
     private String nombreTipoReserva;
+
+    @Column(nullable = false)
+    private Boolean activo = true;
 }
-
-

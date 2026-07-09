@@ -14,6 +14,7 @@ public class ResenaDTO {
     private String rutUsuario;
     private Integer herramientaId;
     private Integer reservaId;
+    private Boolean activo;
 }
 
 

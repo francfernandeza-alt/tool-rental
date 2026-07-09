@@ -74,5 +74,3 @@ public class ReservaValidaciones {
         return metodoPago;
     }
 }
-
-

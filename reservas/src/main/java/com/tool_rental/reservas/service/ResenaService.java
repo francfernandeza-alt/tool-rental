@@ -27,64 +27,64 @@ public class ResenaService {
     private ResenaValidaciones resenaValidaciones;
 
     public List<ResenaDTO> obtenerTodos() {
-        log.info("Obteniendo todas las resenas registradas");
+        log.info("Obteniendo todas las resenas activas");
 
-        List<Resena> resenas = resenaRepository.findAll();
+        List<Resena> resenas = resenaRepository.findByActivoTrue();
         List<ResenaDTO> resenasDTO = new ArrayList<>();
 
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Total de resenas encontradas: {}", resenasDTO.size());
+        log.info("Total de resenas activas encontradas: {}", resenasDTO.size());
         return resenasDTO;
     }
 
     public ResenaDTO buscarPorId(Integer id) {
-        log.info("Buscando resena con ID {}", id);
+        log.info("Buscando resena activa con ID {}", id);
 
-        Resena resena = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro resena con ID {}", id);
+        Resena resena = resenaRepository.findByIdResenaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro resena activa con ID {}", id);
             return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
         return convertirADTO(resena);
     }
 
     public List<ResenaDTO> buscarPorRutUsuario(String rutUsuario) {
-        log.info("Buscando resenas asociadas al usuario {}", rutUsuario);
+        log.info("Buscando resenas activas asociadas al usuario {}", rutUsuario);
 
-        List<Resena> resenas = resenaRepository.findByRutUsuario(rutUsuario);
+        List<Resena> resenas = resenaRepository.findByRutUsuarioAndActivoTrue(rutUsuario);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
 
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} resenas para el usuario {}", resenasDTO.size(), rutUsuario);
+        log.info("Se encontraron {} resenas activas para el usuario {}", resenasDTO.size(), rutUsuario);
         return resenasDTO;
     }
 
     public List<ResenaDTO> buscarPorHerramientaId(Integer herramientaId) {
-        log.info("Buscando resenas asociadas a la herramienta {}", herramientaId);
+        log.info("Buscando resenas activas asociadas a la herramienta {}", herramientaId);
 
-        List<Resena> resenas = resenaRepository.findByHerramientaId(herramientaId);
+        List<Resena> resenas = resenaRepository.findByHerramientaIdAndActivoTrue(herramientaId);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
 
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} resenas para la herramienta {}", resenasDTO.size(), herramientaId);
+        log.info("Se encontraron {} resenas activas para la herramienta {}", resenasDTO.size(), herramientaId);
         return resenasDTO;
     }
 
     public List<ResenaDTO> buscarPorReservaId(Integer reservaId) {
-        log.info("Buscando resenas asociadas a la reserva {}", reservaId);
+        log.info("Buscando resenas activas asociadas a la reserva {}", reservaId);
 
-        List<Resena> resenas = resenaRepository.findByReservaId(reservaId);
+        List<Resena> resenas = resenaRepository.findByReservaIdAndActivoTrue(reservaId);
         List<ResenaDTO> resenasDTO = new ArrayList<>();
 
         for (Resena resena : resenas) {
             resenasDTO.add(convertirADTO(resena));
         }
-        log.info("Se encontraron {} resenas para la reserva {}", resenasDTO.size(), reservaId);
+        log.info("Se encontraron {} resenas activas para la reserva {}", resenasDTO.size(), reservaId);
         return resenasDTO;
     }
 
@@ -101,6 +101,11 @@ public class ResenaService {
             resena.setFechaResena(LocalDate.now());
             log.info("Fecha de resena asignada automaticamente: {}", resena.getFechaResena());
         }
+
+        if (resena.getActivo() == null) {
+            resena.setActivo(true);
+        }
+
         Resena resenaGuardada = resenaRepository.save(resena);
 
         log.info("Resena registrada correctamente con ID {}", resenaGuardada.getIdResena());
@@ -110,8 +115,8 @@ public class ResenaService {
     public ResenaDTO actualizar(Integer id, Resena resena) {
         log.info("Actualizando resena con ID {}", id);
 
-        Resena resenaExistente = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro resena con ID {}", id);
+        Resena resenaExistente = resenaRepository.findByIdResenaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro resena activa con ID {}", id);
             return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
 
@@ -143,17 +148,24 @@ public class ResenaService {
         return convertirADTO(resenaActualizada);
     }
 
-    public String eliminar(Integer id) {
-        log.info("Intentando eliminar resena con ID {}", id);
+    public String desactivar(Integer id) {
+        log.info("Intentando desactivar resena con ID {}", id);
 
-        Resena resena = resenaRepository.findById(id).orElseThrow(() -> {
-            log.error("No se encontro resena con ID {}", id);
+        Resena resena = resenaRepository.findByIdResenaAndActivoTrue(id).orElseThrow(() -> {
+            log.error("No se encontro resena activa con ID {}", id);
             return new RuntimeException("No se encontro la resena con el ID ingresado.");
         });
-        resenaRepository.delete(resena);
 
-        log.info("Resena con ID {} eliminada correctamente", id);
-        return "La resena con ID " + id + " fue eliminada correctamente.";
+        resena.setActivo(false);
+        resenaRepository.save(resena);
+
+        log.info("Resena con ID {} desactivada correctamente", id);
+        return "La resena con ID " + id + " fue desactivada correctamente.";
+    }
+
+
+    public String eliminar(Integer id) {
+        return desactivar(id);
     }
 
     private ResenaDTO convertirADTO(Resena resena) {
@@ -166,8 +178,7 @@ public class ResenaService {
         resenaDTO.setRutUsuario(resena.getRutUsuario());
         resenaDTO.setHerramientaId(resena.getHerramientaId());
         resenaDTO.setReservaId(resena.getReservaId());
+        resenaDTO.setActivo(resena.getActivo());
         return resenaDTO;
     }
 }
-
-

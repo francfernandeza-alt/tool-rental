@@ -41,7 +41,7 @@ public class TipoReservaServiceTest {
     @Test
     void obtenerTodosDebeRetornarListaTiposReserva() {
         // Given
-        when(tipoReservaRepository.findAll()).thenReturn(List.of(tipoReserva));
+        when(tipoReservaRepository.findByActivoTrue()).thenReturn(List.of(tipoReserva));
 
         // When
         List<TipoReserva> resultado = tipoReservaService.obtenerTodos();
@@ -50,13 +50,13 @@ public class TipoReservaServiceTest {
         assertEquals(1, resultado.size());
         assertEquals("Retiro en tienda", resultado.get(0).getNombreTipoReserva());
 
-        verify(tipoReservaRepository).findAll();
+        verify(tipoReservaRepository).findByActivoTrue();
     }
 
     @Test
     void buscarPorIdDebeRetornarTipoReservaCuandoExiste() {
         // Given
-        when(tipoReservaRepository.findById(1)).thenReturn(Optional.of(tipoReserva));
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(1)).thenReturn(Optional.of(tipoReserva));
 
         // When
         TipoReserva resultado = tipoReservaService.buscarPorId(1);
@@ -66,13 +66,13 @@ public class TipoReservaServiceTest {
         assertEquals(1, resultado.getIdTipoReserva());
         assertEquals("Retiro en tienda", resultado.getNombreTipoReserva());
 
-        verify(tipoReservaRepository).findById(1);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(1);
     }
 
     @Test
     void buscarPorIdDebeRetornarNullCuandoNoExiste() {
         // Given
-        when(tipoReservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         TipoReserva resultado = tipoReservaService.buscarPorId(99);
@@ -80,7 +80,7 @@ public class TipoReservaServiceTest {
         // Then
         assertNull(resultado);
 
-        verify(tipoReservaRepository).findById(99);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(99);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class TipoReservaServiceTest {
         TipoReserva datosActualizados = new TipoReserva();
         datosActualizados.setNombreTipoReserva("Despacho a domicilio");
 
-        when(tipoReservaRepository.findById(1)).thenReturn(Optional.of(tipoReserva));
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(1)).thenReturn(Optional.of(tipoReserva));
         when(tipoReservaRepository.save(tipoReserva)).thenReturn(tipoReserva);
 
         // When
@@ -115,7 +115,7 @@ public class TipoReservaServiceTest {
         assertNotNull(resultado);
         assertEquals("Despacho a domicilio", resultado.getNombreTipoReserva());
 
-        verify(tipoReservaRepository).findById(1);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(1);
         verify(tipoReservaRepository).save(tipoReserva);
     }
 
@@ -125,7 +125,7 @@ public class TipoReservaServiceTest {
         TipoReserva datosActualizados = new TipoReserva();
         datosActualizados.setNombreTipoReserva("Despacho a domicilio");
 
-        when(tipoReservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         TipoReserva resultado = tipoReservaService.actualizar(99, datosActualizados);
@@ -133,13 +133,13 @@ public class TipoReservaServiceTest {
         // Then
         assertNull(resultado);
 
-        verify(tipoReservaRepository).findById(99);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(99);
     }
 
     @Test
     void eliminarDebeRetornarTrueCuandoExiste() {
         // Given
-        when(tipoReservaRepository.findById(1)).thenReturn(Optional.of(tipoReserva));
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(1)).thenReturn(Optional.of(tipoReserva));
 
         // When
         boolean resultado = tipoReservaService.eliminar(1);
@@ -147,14 +147,14 @@ public class TipoReservaServiceTest {
         // Then
         assertTrue(resultado);
 
-        verify(tipoReservaRepository).findById(1);
-        verify(tipoReservaRepository).delete(tipoReserva);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(1);
+        verify(tipoReservaRepository).save(tipoReserva);
     }
 
     @Test
     void eliminarDebeRetornarFalseCuandoNoExiste() {
         // Given
-        when(tipoReservaRepository.findById(99)).thenReturn(Optional.empty());
+        when(tipoReservaRepository.findByIdTipoReservaAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         boolean resultado = tipoReservaService.eliminar(99);
@@ -162,8 +162,6 @@ public class TipoReservaServiceTest {
         // Then
         assertFalse(resultado);
 
-        verify(tipoReservaRepository).findById(99);
+        verify(tipoReservaRepository).findByIdTipoReservaAndActivoTrue(99);
     }
 }
-
-

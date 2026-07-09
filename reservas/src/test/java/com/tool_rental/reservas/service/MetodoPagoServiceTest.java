@@ -41,7 +41,7 @@ public class MetodoPagoServiceTest {
     @Test
     void obtenerTodosDebeRetornarListaMetodosPago() {
         // Given
-        when(metodoPagoRepository.findAll()).thenReturn(List.of(metodoPago));
+        when(metodoPagoRepository.findByActivoTrue()).thenReturn(List.of(metodoPago));
 
         // When
         List<MetodoPago> resultado = metodoPagoService.obtenerTodos();
@@ -50,13 +50,13 @@ public class MetodoPagoServiceTest {
         assertEquals(1, resultado.size());
         assertEquals("Transferencia", resultado.get(0).getNombreMetodoPago());
 
-        verify(metodoPagoRepository).findAll();
+        verify(metodoPagoRepository).findByActivoTrue();
     }
 
     @Test
     void buscarPorIdDebeRetornarMetodoPagoCuandoExiste() {
         // Given
-        when(metodoPagoRepository.findById(1)).thenReturn(Optional.of(metodoPago));
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(1)).thenReturn(Optional.of(metodoPago));
 
         // When
         MetodoPago resultado = metodoPagoService.buscarPorId(1);
@@ -66,13 +66,13 @@ public class MetodoPagoServiceTest {
         assertEquals(1, resultado.getIdMetodoPago());
         assertEquals("Transferencia", resultado.getNombreMetodoPago());
 
-        verify(metodoPagoRepository).findById(1);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(1);
     }
 
     @Test
     void buscarPorIdDebeRetornarNullCuandoNoExiste() {
         // Given
-        when(metodoPagoRepository.findById(99)).thenReturn(Optional.empty());
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         MetodoPago resultado = metodoPagoService.buscarPorId(99);
@@ -80,7 +80,7 @@ public class MetodoPagoServiceTest {
         // Then
         assertNull(resultado);
 
-        verify(metodoPagoRepository).findById(99);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(99);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class MetodoPagoServiceTest {
         MetodoPago datosActualizados = new MetodoPago();
         datosActualizados.setNombreMetodoPago("Tarjeta de debito");
 
-        when(metodoPagoRepository.findById(1)).thenReturn(Optional.of(metodoPago));
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(1)).thenReturn(Optional.of(metodoPago));
         when(metodoPagoRepository.save(metodoPago)).thenReturn(metodoPago);
 
         // When
@@ -115,7 +115,7 @@ public class MetodoPagoServiceTest {
         assertNotNull(resultado);
         assertEquals("Tarjeta de debito", resultado.getNombreMetodoPago());
 
-        verify(metodoPagoRepository).findById(1);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(1);
         verify(metodoPagoRepository).save(metodoPago);
     }
 
@@ -125,7 +125,7 @@ public class MetodoPagoServiceTest {
         MetodoPago datosActualizados = new MetodoPago();
         datosActualizados.setNombreMetodoPago("Tarjeta de debito");
 
-        when(metodoPagoRepository.findById(99)).thenReturn(Optional.empty());
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         MetodoPago resultado = metodoPagoService.actualizar(99, datosActualizados);
@@ -133,13 +133,13 @@ public class MetodoPagoServiceTest {
         // Then
         assertNull(resultado);
 
-        verify(metodoPagoRepository).findById(99);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(99);
     }
 
     @Test
     void eliminarDebeRetornarTrueCuandoExiste() {
         // Given
-        when(metodoPagoRepository.findById(1)).thenReturn(Optional.of(metodoPago));
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(1)).thenReturn(Optional.of(metodoPago));
 
         // When
         boolean resultado = metodoPagoService.eliminar(1);
@@ -147,14 +147,14 @@ public class MetodoPagoServiceTest {
         // Then
         assertTrue(resultado);
 
-        verify(metodoPagoRepository).findById(1);
-        verify(metodoPagoRepository).delete(metodoPago);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(1);
+        verify(metodoPagoRepository).save(metodoPago);
     }
 
     @Test
     void eliminarDebeRetornarFalseCuandoNoExiste() {
         // Given
-        when(metodoPagoRepository.findById(99)).thenReturn(Optional.empty());
+        when(metodoPagoRepository.findByIdMetodoPagoAndActivoTrue(99)).thenReturn(Optional.empty());
 
         // When
         boolean resultado = metodoPagoService.eliminar(99);
@@ -162,7 +162,7 @@ public class MetodoPagoServiceTest {
         // Then
         assertFalse(resultado);
 
-        verify(metodoPagoRepository).findById(99);
+        verify(metodoPagoRepository).findByIdMetodoPagoAndActivoTrue(99);
     }
 }
 
