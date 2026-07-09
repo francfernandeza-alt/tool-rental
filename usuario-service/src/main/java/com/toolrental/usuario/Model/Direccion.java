@@ -23,7 +23,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "Direccion")
 
 public class Direccion {
-@Id
+
+    @Id   
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idDireccion;
 
