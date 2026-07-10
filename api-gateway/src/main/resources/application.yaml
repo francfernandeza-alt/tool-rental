@@ -6,26 +6,38 @@ spring:
     name: api-gateway
   cloud:
     gateway:
-      routes:
-        - id: herramientas
-          uri: lb://herramientas
-          predicates:
-            - Path=/api/v1/herramientas/**, /herramientas/api-docs
-        - id: reservas-service
-          uri: lb://reservas-service
-          predicates:
-            - Path=/api/v1/reservas/**, /reservas/api-docs
-          filters:
-            - RewritePath=/reservas/(?<path>.*), /${path}
-        - id: usuario-service
-          uri: lb://usuario-service
-          predicates:
-            - Path=/api/v1/usuarios/**
+      webmvc:
+        globalcors:
+          cors-configurations:
+            '[/**]':
+              allowed-origin-patterns: "*"
+              allowed-methods: "*"
+              allowed-headers: "*"
+              exposed-headers: "*"
+              allow-credentials: false
+              max-age: 3600
+        routes:
+          - id: herramientas
+            uri: lb://herramientas
+            predicates:
+              - Path=/api/v1/herramientas/**, /herramientas/api-docs
+          - id: reservas-service
+            uri: lb://reservas-service
+            predicates:
+              - Path=/api/v1/reservas/**, /reservas/api-docs
+            filters:
+              - RewritePath=/reservas/(?<path>.*), /${path}
+          - id: usuario-service
+            uri: lb://usuario-service
+            predicates:
+              - Path=/api/v1/usuarios/**
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: false
 
 springdoc:
   swagger-ui:
@@ -37,5 +49,7 @@ springdoc:
         url: /reservas/api-docs
       - name: Microservicio Usuarios
         url: /usuarios/api-docs
+    disable-swagger-default-url: true
+    display-request-duration: true
   docs:
     enabled: true

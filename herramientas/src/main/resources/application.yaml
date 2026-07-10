@@ -1,5 +1,6 @@
 server:
   port: 0
+  forward-headers-strategy: framework
   
 springdoc:
   api-docs:
@@ -14,7 +15,10 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.value}
 
 spring:
   application:
@@ -41,6 +45,17 @@ spring:
   profiles:
     active: dev
 
+  mvc:
+    cors:
+      mappings:
+        "/**":
+          allowed-origin-patterns: "*"
+          allowed-methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
+          allowed-headers: "*"
+          exposed-headers: "*"
+          allow-credentials: false
+          max-age: 3600
+
 ---
 
 spring:
@@ -48,7 +63,7 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_dev?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/db_toolrental_herramientas_dev?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -63,7 +78,7 @@ spring:
     activate:
       on-profile: test
   datasource:
-    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_test?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/db_toolrental_herramientas_test?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -78,7 +93,7 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: jdbc:mysql://localhost:3306/db_toolrental_herramientas_prod?createDatabaseIfNotExist=true
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:3306/db_toolrental_herramientas_prod?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     username: root
     password: "TU_PASSWORD_SEGURO"
     driver-class-name: com.mysql.cj.jdbc.Driver

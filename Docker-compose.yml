@@ -35,7 +35,7 @@ services:
 
 
   api-gateway:
-    build: ./gateway
+    build: ./api-gateway
     container_name: api-gateway
     ports:
       - "8080:8080"
